@@ -11,7 +11,7 @@ Implementation is designed for **two parallel agents** (or two human devs) with 
 | Agent | Scope | Primary doc sections |
 |--------|--------|----------------------|
 | **Backend agent** | Node.js + TypeScript + **Fastify** API, **PostgreSQL**, **Firebase Admin** (token verify), **Google** Geocoding + **Routes API**, match/rank + routing logic, deploy (e.g. Railway/Render) | [Technical §3, §10–§16](./carpool-city-02-technical.md), checklist **Investigation**, **Shared** (with frontend), **Backend** |
-| **Frontend agent** | **iOS SwiftUI** app, **Firebase Auth** (sign-in), **URLSession** API client, all screens and map UX, sends **`clientTimeZone`** + bodies per **§12** | [Technical §12, §17](./carpool-city-02-technical.md), [Product §4](./carpool-city-01-product.md), checklist **Shared** (with backend), **iOS** |
+| **Frontend agent** | **iOS SwiftUI** app, **Firebase Auth** (sign-in), **URLSession** API client, all screens and map UX, sends **`clientTimeZone`** + bodies per **§12** | [Technical §12, §17](./carpool-city-02-technical.md), **[IOS_BACKEND_INTEGRATION.md](./IOS_BACKEND_INTEGRATION.md)** (concrete API usage), [Product §4](./carpool-city-01-product.md), checklist **Shared** (with backend), **iOS** |
 
 **Both** must coordinate on **Shared** and **End-to-end** in [carpool-city-03-checklist.md](./carpool-city-03-checklist.md) before calling the MVP done.
 
@@ -77,6 +77,8 @@ If your Cursor session is scoped as **one** agent, say so in chat: *“Act as th
 ---
 
 ## Quick links
+
+- **iOS ↔ API (base URL, auth, every endpoint, errors):** [IOS_BACKEND_INTEGRATION.md](./IOS_BACKEND_INTEGRATION.md)
 
 - Product MVP summary: [carpool-city-01-product.md §12](./carpool-city-01-product.md)
 - REST API draft: [carpool-city-02-technical.md §12](./carpool-city-02-technical.md)
