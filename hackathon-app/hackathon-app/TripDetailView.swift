@@ -313,6 +313,20 @@ struct TripDetailView: View {
             let isDriver = meId != nil && d.driver.id == meId
             let myApplication = findMyApplication(d)
 
+            if isDriver && d.intentStatus == .confirmed && !d.stops.isEmpty {
+                Button {
+                    openGoogleMapsNavigation(d)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "location.fill")
+                            .font(.system(size: 18))
+                        Text("Start Ride")
+                            .font(.system(size: 17, weight: .bold))
+                    }
+                }
+                .buttonStyle(FlowPrimaryButtonStyle())
+            }
+
             if d.intentStatus == .fullRouting {
                 Button("Refresh Status") { Task { await load() } }
                     .buttonStyle(FlowSecondaryButtonStyle())
@@ -340,6 +354,21 @@ struct TripDetailView: View {
                     }
             }
         }
+    }
+
+    // MARK: - Google Maps Navigation
+
+    private func openGoogleMapsNavigation(_ d: IntentDetailResponse) {
+        let sortedStops = d.stops.sorted { $0.sequence < $1.sequence }
+
+        var pathSegments: [String] = sortedStops.map { "\($0.latitude),\($0.longitude)" }
+        let destination = d.destinationAddress
+            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? d.destinationAddress
+        pathSegments.append(destination)
+
+        let urlString = "https://www.google.com/maps/dir/" + pathSegments.joined(separator: "/")
+        guard let url = URL(string: urlString) else { return }
+        UIApplication.shared.open(url)
     }
 
     // MARK: - Helpers
