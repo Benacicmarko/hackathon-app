@@ -9,6 +9,9 @@ import SwiftUI
 
 @main
 struct hackathon_appApp: App {
+    // Connect AppDelegate for Firebase initialization
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
