@@ -84,6 +84,11 @@ struct ApplicationResponse: Decodable {
     let routingStatus: String?
 }
 
+struct StartRideResponse: Decodable {
+    let id: String
+    let status: String
+}
+
 struct IntentDetailResponse: Decodable, Equatable {
     let id: String
     let status: String
@@ -139,6 +144,7 @@ enum IntentStatus: String {
     case collectingPassengers = "collecting_passengers"
     case fullRouting = "full_routing"
     case confirmed = "confirmed"
+    case inProgress = "in_progress"
     case cancelled = "cancelled"
 
     var label: String {
@@ -146,12 +152,13 @@ enum IntentStatus: String {
         case .collectingPassengers: return "Collecting Riders"
         case .fullRouting: return "Building Route…"
         case .confirmed: return "Confirmed"
+        case .inProgress: return "Ride Started"
         case .cancelled: return "Cancelled"
         }
     }
 
     var isActive: Bool {
-        self == .collectingPassengers || self == .fullRouting || self == .confirmed
+        self == .collectingPassengers || self == .fullRouting || self == .confirmed || self == .inProgress
     }
 }
 

@@ -370,6 +370,24 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
     return reply.code(204).send();
   });
 
+  app.post("/driver-intents/:id/start", { preHandler: authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = request.user!.id;
+    const intent = await prisma.driverIntent.findUnique({ where: { id } });
+    if (!intent) return reply.code(404).send({ error: "not_found" });
+    if (intent.driverUserId !== userId) return reply.code(403).send({ error: "forbidden" });
+    if (intent.status !== STATUS.confirmed) {
+      return reply.code(409).send({ error: "intent_not_confirmed" });
+    }
+
+    await prisma.driverIntent.update({
+      where: { id },
+      data: { status: STATUS.inProgress },
+    });
+
+    return { id, status: STATUS.inProgress };
+  });
+
   app.get("/driver-intents/:id/detail", { preHandler: authenticate }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const userId = request.user!.id;

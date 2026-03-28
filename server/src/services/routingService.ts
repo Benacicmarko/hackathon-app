@@ -9,6 +9,7 @@ export const STATUS = {
   collecting: "collecting_passengers",
   routing: "full_routing",
   confirmed: "confirmed",
+  inProgress: "in_progress",
   cancelled: "cancelled",
 } as const;
 

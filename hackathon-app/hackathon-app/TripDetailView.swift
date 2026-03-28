@@ -12,6 +12,8 @@ struct TripDetailView: View {
     @State private var errorMessage: String?
     @State private var showCancelConfirm = false
     @State private var isCancelling = false
+    @State private var isStarting = false
+    @State private var pollingTask: Task<Void, Never>?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -34,13 +36,29 @@ struct TripDetailView: View {
         .navigationTitle("Trip Detail")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.dark, for: .navigationBar)
-        .task { await load() }
+        .task { await load(); startPollingIfNeeded() }
         .refreshable { await load() }
+        .onDisappear { pollingTask?.cancel() }
     }
 
     // MARK: - Content
 
+    private var isRider: Bool {
+        guard let meId, let detail else { return false }
+        return detail.driver.id != meId
+    }
+
     private func detailContent(_ d: IntentDetailResponse) -> some View {
+        Group {
+            if d.intentStatus == .inProgress && isRider {
+                rideInProgressView(d)
+            } else {
+                normalDetailContent(d)
+            }
+        }
+    }
+
+    private func normalDetailContent(_ d: IntentDetailResponse) -> some View {
         ScrollView {
             VStack(spacing: 20) {
                 statusHeader(d)
@@ -315,16 +333,21 @@ struct TripDetailView: View {
 
             if isDriver && d.intentStatus == .confirmed && !d.stops.isEmpty {
                 Button {
-                    openGoogleMapsNavigation(d)
+                    Task { await startRide(d) }
                 } label: {
                     HStack(spacing: 10) {
-                        Image(systemName: "location.fill")
-                            .font(.system(size: 18))
+                        if isStarting {
+                            ProgressView().tint(.white)
+                        } else {
+                            Image(systemName: "location.fill")
+                                .font(.system(size: 18))
+                        }
                         Text("Start Ride")
                             .font(.system(size: 17, weight: .bold))
                     }
                 }
                 .buttonStyle(FlowPrimaryButtonStyle())
+                .disabled(isStarting)
             }
 
             if d.intentStatus == .fullRouting {
@@ -354,6 +377,86 @@ struct TripDetailView: View {
                     }
             }
         }
+    }
+
+    // MARK: - Ride In Progress (rider view)
+
+    private func rideInProgressView(_ d: IntentDetailResponse) -> some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .fill(FlowTheme.primary.opacity(0.15))
+                        .frame(width: 120, height: 120)
+                    Circle()
+                        .fill(FlowTheme.primary.opacity(0.25))
+                        .frame(width: 90, height: 90)
+                    Image(systemName: "car.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(FlowTheme.primary)
+                        .symbolEffect(.pulse, options: .repeating)
+                }
+
+                VStack(spacing: 8) {
+                    Text("Your ride has started!")
+                        .font(.system(size: 26, weight: .bold))
+                        .foregroundStyle(FlowTheme.onSurface)
+                        .multilineTextAlignment(.center)
+
+                    Text("\(d.driver.displayName ?? "Your driver") is on the way")
+                        .font(.system(size: 17))
+                        .foregroundStyle(FlowTheme.onSurfaceVariant)
+                        .multilineTextAlignment(.center)
+                }
+
+                if let myStop = myPickupStop(d) {
+                    FlowCard {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "mappin.circle.fill")
+                                    .foregroundStyle(FlowTheme.primary)
+                                Text("Your pickup")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(FlowTheme.onSurfaceVariant)
+                            }
+                            Text(myStop.placeLabel)
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(FlowTheme.onSurface)
+                            HStack(spacing: 6) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(FlowTheme.onSurfaceVariant)
+                                Text("ETA: \(FlowFormatters.displayTime(myStop.scheduledAt))")
+                                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(FlowTheme.primary)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+            }
+
+            Spacer()
+
+            VStack(spacing: 12) {
+                Text("Be ready at your pickup point")
+                    .font(.system(size: 14))
+                    .foregroundStyle(FlowTheme.onSurfaceVariant)
+
+                if !d.stops.isEmpty {
+                    mapSection(d)
+                        .padding(.horizontal, 20)
+                }
+            }
+            .padding(.bottom, 32)
+        }
+    }
+
+    private func myPickupStop(_ d: IntentDetailResponse) -> StopInfo? {
+        guard let meId else { return nil }
+        return d.stops.first { $0.userId == meId && $0.isPickup }
     }
 
     // MARK: - Google Maps Navigation
@@ -426,6 +529,32 @@ struct TripDetailView: View {
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func startRide(_ d: IntentDetailResponse) async {
+        isStarting = true
+        defer { isStarting = false }
+
+        do {
+            try await APIClient.shared.startRide(intentId: d.id)
+            await load()
+            openGoogleMapsNavigation(d)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func startPollingIfNeeded() {
+        guard isRider, detail?.intentStatus == .confirmed else { return }
+        pollingTask?.cancel()
+        pollingTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(5))
+                guard !Task.isCancelled else { break }
+                await load()
+                if detail?.intentStatus != .confirmed { break }
+            }
         }
     }
 

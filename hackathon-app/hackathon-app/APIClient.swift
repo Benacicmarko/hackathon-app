@@ -100,12 +100,22 @@ final class APIClient {
         try await get("/driver-intents/\(id)/detail")
     }
 
+    @discardableResult
+    func startRide(intentId: String) async throws -> StartRideResponse {
+        try await post("/driver-intents/\(intentId)/start")
+    }
+
     // MARK: - Internal
 
     private enum Method: String { case get = "GET", post = "POST", delete = "DELETE" }
 
     private func get<T: Decodable>(_ path: String, query: [(String, String)] = []) async throws -> T {
         let req = try makeRequest(.get, path: path, query: query)
+        return try await execute(req)
+    }
+
+    private func post<T: Decodable>(_ path: String) async throws -> T {
+        let req = try makeRequest(.post, path: path)
         return try await execute(req)
     }
 
@@ -140,12 +150,14 @@ final class APIClient {
 
         var req = URLRequest(url: url)
         req.httpMethod = method.rawValue
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         guard let token = AuthKeychain.idToken() else { throw APIError.noToken }
         req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        req.httpBody = bodyData
+        if let bodyData {
+            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            req.httpBody = bodyData
+        }
         return req
     }
 
