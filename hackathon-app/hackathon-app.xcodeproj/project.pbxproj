@@ -80,6 +80,7 @@
 		65E896512F77E89E002DE35E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				65E896D82F77E89E002DE35E /* GoogleSignInURLScheme.plist */,
 				65E896612F77ED70002DE35E /* GoogleService-Info.plist */,
 				65E8964F2F77E89E002DE35E /* Assets.xcassets */,
 			);
@@ -92,17 +93,48 @@
 				65E896512F77E89E002DE35E /* Resources */,
 				65E896522F77E89E002DE35E /* AppDelegate.swift */,
 				65E896552F77E89E002DE35E /* hackathon_appApp.swift */,
+				65E896752F77F867002DE35E /* Services */,
+				65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */,
+				65E896762F77F86F002DE35E /* Modules */,
+			);
+			path = "hackathon-app";
+			sourceTree = "<group>";
+		};
+		65E896752F77F867002DE35E /* Services */ = {
+			isa = PBXGroup;
+			children = (
 				65E896532F77E89E002DE35E /* AppSession.swift */,
 				65E896D02F77E89E002DE35E /* AuthKeychain.swift */,
 				65E896D22F77E89E002DE35E /* SessionMetadataStore.swift */,
-				65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */,
-				65E896D62F77E89E002DE35E /* EmailPasswordSheet.swift */,
-				65E896D82F77E89E002DE35E /* GoogleSignInURLScheme.plist */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		65E896762F77F86F002DE35E /* Modules */ = {
+			isa = PBXGroup;
+			children = (
 				65E896572F77E89E002DE35E /* RootView.swift */,
+				65E896772F77F877002DE35E /* Login */,
+				65E896782F77F87C002DE35E /* Main */,
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		65E896772F77F877002DE35E /* Login */ = {
+			isa = PBXGroup;
+			children = (
 				65E896562F77E89E002DE35E /* LoginView.swift */,
+				65E896D62F77E89E002DE35E /* EmailPasswordSheet.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		65E896782F77F87C002DE35E /* Main */ = {
+			isa = PBXGroup;
+			children = (
 				65E896542F77E89E002DE35E /* MainView.swift */,
 			);
-			path = "hackathon-app";
+			path = Main;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
