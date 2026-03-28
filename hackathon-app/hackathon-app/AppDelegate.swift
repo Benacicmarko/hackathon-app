@@ -7,21 +7,23 @@
 
 import UIKit
 import FirebaseCore
+import GoogleSignIn
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // Configure Firebase
         FirebaseApp.configure()
-        
-        print("Firebase initialized successfully")
-        
+
+        if let clientID = FirebaseApp.app()?.options.clientID, !clientID.isEmpty {
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        }
+
         return true
     }
-    
+
     // MARK: - Optional: Handle Remote Notifications (if needed)
     
     func application(
