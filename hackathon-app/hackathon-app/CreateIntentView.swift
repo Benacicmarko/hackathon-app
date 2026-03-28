@@ -85,32 +85,26 @@ struct CreateIntentView: View {
         VStack(alignment: .leading, spacing: 8) {
             FlowSectionHeader(title: "Route", icon: "map")
             VStack(spacing: 2) {
-                addressRow(icon: "circle.fill", color: FlowTheme.primary, placeholder: "Pickup address (your home)", text: $originAddress)
+                AddressSearchField(
+                    icon: "circle.fill",
+                    iconColor: FlowTheme.primary,
+                    placeholder: "Pickup address (your home)",
+                    address: $originAddress
+                )
                 HStack(spacing: 0) {
                     dotLine
                     Spacer()
                 }
                 .padding(.leading, 23)
-                addressRow(icon: "mappin.circle.fill", color: FlowTheme.error, placeholder: "Destination (your work)", text: $destinationAddress)
+                AddressSearchField(
+                    icon: "mappin.circle.fill",
+                    iconColor: FlowTheme.error,
+                    placeholder: "Destination (your work)",
+                    address: $destinationAddress
+                )
             }
         }
-    }
-
-    private func addressRow(icon: String, color: Color, placeholder: String, text: Binding<String>) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 14))
-                .foregroundStyle(color)
-                .frame(width: 20)
-            TextField(placeholder, text: text)
-                .font(.system(size: 16))
-                .foregroundStyle(FlowTheme.onSurface)
-                .textInputAutocapitalization(.words)
-        }
-        .padding(.horizontal, 14)
-        .frame(height: 52)
-        .background(FlowTheme.surfaceContainerHi)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .zIndex(1)
     }
 
     private var dotLine: some View {

@@ -63,11 +63,22 @@ struct RideSearchView: View {
             VStack(alignment: .leading, spacing: 8) {
                 FlowSectionHeader(title: "Your Trip", icon: "map")
                 VStack(spacing: 2) {
-                    fieldRow(icon: "circle.fill", color: FlowTheme.secondary, placeholder: "Your pickup address", text: $departureAddress)
+                    AddressSearchField(
+                        icon: "circle.fill",
+                        iconColor: FlowTheme.secondary,
+                        placeholder: "Your pickup address",
+                        address: $departureAddress
+                    )
                     dotConnector
-                    fieldRow(icon: "mappin.circle.fill", color: FlowTheme.error, placeholder: "Your destination", text: $arrivalAddress)
+                    AddressSearchField(
+                        icon: "mappin.circle.fill",
+                        iconColor: FlowTheme.error,
+                        placeholder: "Your destination",
+                        address: $arrivalAddress
+                    )
                 }
             }
+            .zIndex(1)
 
             arrivalTimeRow
         }
@@ -108,23 +119,6 @@ struct RideSearchView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             .foregroundStyle(FlowTheme.onSurface)
         }
-    }
-
-    private func fieldRow(icon: String, color: Color, placeholder: String, text: Binding<String>) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 14))
-                .foregroundStyle(color)
-                .frame(width: 20)
-            TextField(placeholder, text: text)
-                .font(.system(size: 16))
-                .foregroundStyle(FlowTheme.onSurface)
-                .textInputAutocapitalization(.words)
-        }
-        .padding(.horizontal, 14)
-        .frame(height: 52)
-        .background(FlowTheme.surfaceContainerHi)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private var dotConnector: some View {

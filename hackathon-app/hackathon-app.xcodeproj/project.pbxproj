@@ -35,6 +35,7 @@
 		AAAA00102F77F001002DE35E /* RideSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA000F2F77F001002DE35E /* RideSearchView.swift */; };
 		AAAA00122F77F001002DE35E /* TripDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00112F77F001002DE35E /* TripDetailView.swift */; };
 		AAAA00142F77F001002DE35E /* MyRidesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00132F77F001002DE35E /* MyRidesView.swift */; };
+		AAAA00162F77F001002DE35E /* AddressSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00152F77F001002DE35E /* AddressSearchField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +63,7 @@
 		AAAA000F2F77F001002DE35E /* RideSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideSearchView.swift; sourceTree = "<group>"; };
 		AAAA00112F77F001002DE35E /* TripDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
 		AAAA00132F77F001002DE35E /* MyRidesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyRidesView.swift; sourceTree = "<group>"; };
+		AAAA00152F77F001002DE35E /* AddressSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressSearchField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 				AAAA000F2F77F001002DE35E /* RideSearchView.swift */,
 				AAAA00112F77F001002DE35E /* TripDetailView.swift */,
 				AAAA00132F77F001002DE35E /* MyRidesView.swift */,
+				AAAA00152F77F001002DE35E /* AddressSearchField.swift */,
 			);
 			path = "hackathon-app";
 			sourceTree = "<group>";
@@ -238,6 +241,7 @@
 				AAAA00102F77F001002DE35E /* RideSearchView.swift in Sources */,
 				AAAA00122F77F001002DE35E /* TripDetailView.swift in Sources */,
 				AAAA00142F77F001002DE35E /* MyRidesView.swift in Sources */,
+				AAAA00162F77F001002DE35E /* AddressSearchField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
