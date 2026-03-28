@@ -145,7 +145,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
 
     await prisma.driverIntent.update({
       where: { id },
-      data: { status: STATUS.cancelled },
+      data: { status: STATUS.cancelled, routePolyline: null },
     });
     await prisma.riderApplication.deleteMany({ where: { driverIntentId: id } });
     await prisma.rideStop.deleteMany({ where: { driverIntentId: id } });
@@ -328,7 +328,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
             await prisma.riderApplication.delete({ where: { id: result.appRow.id } });
             await prisma.driverIntent.update({
               where: { id: intentId },
-              data: { status: STATUS.collecting },
+              data: { status: STATUS.collecting, routePolyline: null },
             });
             return reply.code(409).send({ error: "routing_failed", message: msg });
           }
@@ -386,11 +386,50 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
       await prisma.rideStop.deleteMany({ where: { driverIntentId: appRow.driverIntentId } });
       await prisma.driverIntent.update({
         where: { id: appRow.driverIntentId },
-        data: { status: STATUS.collecting },
+        data: { status: STATUS.collecting, routePolyline: null },
       });
     }
 
     return reply.code(204).send();
+  });
+
+  app.post("/driver-intents/:id/start", { preHandler: authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = request.user!.id;
+    const intent = await prisma.driverIntent.findUnique({ where: { id } });
+    if (!intent) return reply.code(404).send({ error: "not_found" });
+    if (intent.driverUserId !== userId) return reply.code(403).send({ error: "forbidden" });
+    if (intent.status !== STATUS.confirmed) {
+      return reply.code(409).send({ error: "intent_not_confirmed" });
+    }
+
+    await prisma.driverIntent.update({
+      where: { id },
+      data: { status: STATUS.inProgress },
+    });
+
+    return { id, status: STATUS.inProgress };
+  });
+
+  app.post("/driver-intents/:id/finish", { preHandler: authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = request.user!.id;
+    const intent = await prisma.driverIntent.findUnique({ where: { id } });
+    if (!intent) return reply.code(404).send({ error: "not_found" });
+    if (intent.driverUserId !== userId) return reply.code(403).send({ error: "forbidden" });
+    if (intent.status !== STATUS.inProgress) {
+      return reply.code(409).send({ error: "intent_not_in_progress" });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.driverIntent.update({
+        where: { id },
+        data: { status: STATUS.completed },
+      });
+      await tx.rideStop.deleteMany({ where: { driverIntentId: id } });
+    });
+
+    return { id, status: STATUS.completed };
   });
 
   app.get("/driver-intents/:id/detail", { preHandler: authenticate }, async (request, reply) => {
@@ -421,6 +460,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
       originAddress: intent.originAddress,
       destinationAddress: intent.destinationAddress,
       passengerSeats: intent.passengerSeats,
+      routePolyline: intent.routePolyline ?? null,
       driver: {
         id: intent.driver.id,
         displayName: intent.driver.displayName,

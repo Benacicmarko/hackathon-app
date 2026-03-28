@@ -9,6 +9,8 @@ export const STATUS = {
   collecting: "collecting_passengers",
   routing: "full_routing",
   confirmed: "confirmed",
+  inProgress: "in_progress",
+  completed: "completed",
   cancelled: "cancelled",
 } as const;
 
@@ -54,6 +56,7 @@ export async function buildAndPersistRoute(
   ];
 
   const route = await computeRoute(driverOrigin, driverDest, intermediates);
+  const routePolyline = route.encodedPolyline ?? null;
 
   let legs = route.legs;
   const expectedLegs = intermediates.length + 1;
@@ -142,7 +145,7 @@ export async function buildAndPersistRoute(
     }
     await tx.driverIntent.update({
       where: { id: intent.id },
-      data: { status: STATUS.confirmed },
+      data: { status: STATUS.confirmed, routePolyline },
     });
   });
 }
