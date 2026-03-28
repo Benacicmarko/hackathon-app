@@ -7,6 +7,7 @@ import SwiftUI
 
 struct JoinedRideView: View {
     @Bindable var store: PassengerRideStore
+    @Environment(AppSession.self) private var session
 
     private var ride: JoinedRide? { store.joinedRide }
 
@@ -54,6 +55,20 @@ struct JoinedRideView: View {
             .animation(.spring(response: 0.5, dampingFraction: 0.8), value: store.phase)
             .navigationTitle("Your ride")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Error", isPresented: Binding(
+                get: { store.errorMessage != nil },
+                set: { if !$0 { store.errorMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) { store.errorMessage = nil }
+            } message: {
+                Text(store.errorMessage ?? "")
+            }
+            .overlay {
+                if store.isLoading {
+                    Color.black.opacity(0.15).ignoresSafeArea()
+                    ProgressView()
+                }
+            }
             .overlay {
                 if store.phase == .completed || store.phase == .cancelled {
                     Color.black.opacity(0.35)
@@ -149,10 +164,11 @@ struct JoinedRideView: View {
         case .joinedRide, .boarding, .inProgress:
             if store.phase == .joinedRide {
                 Button("Remove join", role: .destructive) {
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                        store.unjoinRide()
+                    Task {
+                        await store.unjoinRide(token: await session.freshBearerToken())
                     }
                 }
+                .disabled(store.isLoading)
             }
             // Demo-only button to step through phases
             Button {
@@ -320,38 +336,34 @@ struct PassengerRideEndedView: View {
 
 #Preview("Joined — scheduled") {
     let store = PassengerRideStore()
-    store.rideRequest.from = "Trg bana Jelačića"
-    store.rideRequest.to = "Tehnološki park Zagreb"
-    store.submitRequest()
+    store.loadMockResults()
     if let first = store.availableRides.first {
-        store.joinRide(first)
+        store.joinRideLocally(first)
     }
     return NavigationStack {
         JoinedRideView(store: store)
     }
+    .environment(AppSession())
 }
 
 #Preview("Joined — boarding") {
     let store = PassengerRideStore()
-    store.rideRequest.from = "Trg bana Jelačića"
-    store.rideRequest.to = "Tehnološki park Zagreb"
-    store.submitRequest()
+    store.loadMockResults()
     if let first = store.availableRides.first {
-        store.joinRide(first)
+        store.joinRideLocally(first)
     }
     store.advanceRidePhase()
     return NavigationStack {
         JoinedRideView(store: store)
     }
+    .environment(AppSession())
 }
 
 #Preview("Completed") {
     let store = PassengerRideStore()
-    store.rideRequest.from = "Home"
-    store.rideRequest.to = "Office"
-    store.submitRequest()
+    store.loadMockResults()
     if let first = store.availableRides.first {
-        store.joinRide(first)
+        store.joinRideLocally(first)
     }
     store.advanceRidePhase()
     store.advanceRidePhase()
@@ -359,4 +371,5 @@ struct PassengerRideEndedView: View {
     return NavigationStack {
         JoinedRideView(store: store)
     }
+    .environment(AppSession())
 }

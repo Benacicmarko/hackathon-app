@@ -8,6 +8,7 @@ import SwiftUI
 struct DriverRideCreationView: View {
     @Bindable var store: DriverRideStore
     @Environment(GooglePlacesService.self) private var placesService
+    @Environment(AppSession.self) private var session
 
     private var isEditingExistingRide: Bool {
         store.activeRide != nil
@@ -16,6 +17,7 @@ struct DriverRideCreationView: View {
     private var canSubmit: Bool {
         !store.draft.fromLocation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !store.draft.toLocation.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !store.isLoading
     }
 
     var body: some View {
@@ -26,13 +28,13 @@ struct DriverRideCreationView: View {
                     text: $store.draft.fromLocation,
                     placesService: placesService
                 )
-                
+
                 AddressAutocompleteField(
                     title: "To",
                     text: $store.draft.toLocation,
                     placesService: placesService
                 )
-                
+
                 DatePicker("Departure", selection: $store.draft.departureTime, displayedComponents: [.date, .hourAndMinute])
                 Stepper(value: $store.draft.availableSeats, in: 1...8) {
                     Text("Passenger seats: \(store.draft.availableSeats)")
@@ -59,14 +61,24 @@ struct DriverRideCreationView: View {
             }
 
             Section {
-                Button(isEditingExistingRide ? "Save changes" : "Publish ride") {
-                    if isEditingExistingRide {
-                        store.saveEditedRide()
-                    } else {
-                        store.confirmRide()
+                if store.isLoading {
+                    HStack {
+                        ProgressView()
+                        Text(isEditingExistingRide ? "Saving…" : "Publishing…")
+                            .foregroundStyle(.secondary)
                     }
+                } else {
+                    Button(isEditingExistingRide ? "Save changes" : "Publish ride") {
+                        if isEditingExistingRide {
+                            store.saveEditedRide()
+                        } else {
+                            Task {
+                                await store.confirmRide(token: await session.freshBearerToken())
+                            }
+                        }
+                    }
+                    .disabled(!canSubmit)
                 }
-                .disabled(!canSubmit)
 
                 Button("Cancel", role: .cancel) {
                     if isEditingExistingRide {
@@ -75,10 +87,19 @@ struct DriverRideCreationView: View {
                         store.abandonNewRideForm()
                     }
                 }
+                .disabled(store.isLoading)
             }
         }
         .navigationTitle(isEditingExistingRide ? "Edit ride" : "New ride")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Error", isPresented: Binding(
+            get: { store.errorMessage != nil },
+            set: { if !$0 { store.errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { store.errorMessage = nil }
+        } message: {
+            Text(store.errorMessage ?? "")
+        }
     }
 }
 
@@ -87,4 +108,5 @@ struct DriverRideCreationView: View {
         DriverRideCreationView(store: DriverRideStore())
     }
     .environment(GooglePlacesService(apiKey: "YOUR_API_KEY_HERE"))
+    .environment(AppSession())
 }

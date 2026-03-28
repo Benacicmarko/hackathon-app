@@ -8,10 +8,12 @@ import SwiftUI
 struct RideRequestFormView: View {
     @Bindable var store: PassengerRideStore
     @Environment(GooglePlacesService.self) private var placesService
+    @Environment(AppSession.self) private var session
 
     private var canSubmit: Bool {
         !store.rideRequest.from.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && !store.rideRequest.to.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !store.isLoading
     }
 
     var body: some View {
@@ -28,7 +30,7 @@ struct RideRequestFormView: View {
                     placesService: placesService
                 )
                 DatePicker(
-                    "Departure",
+                    "Wanted arrival time",
                     selection: $store.rideRequest.departureTime,
                     displayedComponents: [.date, .hourAndMinute]
                 )
@@ -61,18 +63,37 @@ struct RideRequestFormView: View {
             }
 
             Section {
-                Button("Search rides") {
-                    store.submitRequest()
+                if store.isLoading {
+                    HStack {
+                        ProgressView()
+                        Text("Searching…")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Button("Search rides") {
+                        Task {
+                            await store.submitRequest(token: await session.freshBearerToken())
+                        }
+                    }
+                    .disabled(!canSubmit)
                 }
-                .disabled(!canSubmit)
 
                 Button("Cancel", role: .cancel) {
                     store.abandonRequestForm()
                 }
+                .disabled(store.isLoading)
             }
         }
         .navigationTitle("Find a ride")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Error", isPresented: Binding(
+            get: { store.errorMessage != nil },
+            set: { if !$0 { store.errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { store.errorMessage = nil }
+        } message: {
+            Text(store.errorMessage ?? "")
+        }
     }
 }
 
@@ -81,4 +102,5 @@ struct RideRequestFormView: View {
         RideRequestFormView(store: PassengerRideStore())
     }
     .environment(GooglePlacesService(apiKey: "YOUR_API_KEY_HERE"))
+    .environment(AppSession())
 }

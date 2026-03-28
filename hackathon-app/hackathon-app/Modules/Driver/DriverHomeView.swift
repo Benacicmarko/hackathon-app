@@ -7,6 +7,7 @@ import SwiftUI
 
 struct DriverHomeView: View {
     @Bindable var store: DriverRideStore
+    @Environment(AppSession.self) private var session
 
     var body: some View {
         Group {
@@ -32,6 +33,17 @@ struct DriverHomeView: View {
         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: store.activeRide?.id)
         .navigationTitle("Driving")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await store.loadMyIntents(token: await session.freshBearerToken())
+        }
+        .alert("Error", isPresented: Binding(
+            get: { store.errorMessage != nil },
+            set: { if !$0 { store.errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { store.errorMessage = nil }
+        } message: {
+            Text(store.errorMessage ?? "")
+        }
     }
 
     private var emptyHub: some View {
@@ -48,6 +60,12 @@ struct DriverHomeView: View {
                 Label("Create ride", systemImage: "plus.circle.fill")
             }
             .buttonStyle(.borderedProminent)
+            .disabled(store.isLoading)
+        }
+        .overlay {
+            if store.isLoading {
+                ProgressView()
+            }
         }
     }
 }
@@ -56,4 +74,5 @@ struct DriverHomeView: View {
     NavigationStack {
         DriverHomeView(store: DriverRideStore())
     }
+    .environment(AppSession())
 }

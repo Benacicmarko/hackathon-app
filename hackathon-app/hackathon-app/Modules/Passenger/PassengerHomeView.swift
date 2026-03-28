@@ -60,4 +60,5 @@ struct PassengerHomeView: View {
     NavigationStack {
         PassengerHomeView(store: PassengerRideStore())
     }
+    .environment(AppSession())
 }

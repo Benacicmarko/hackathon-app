@@ -131,6 +131,17 @@ final class AppSession {
         lastIDToken ?? AuthKeychain.idToken()
     }
 
+    /// Returns a **fresh** ID token, refreshing if the cached one is expired or about to expire.
+    /// Call this before every API request instead of `bearerTokenForAPI()`.
+    func freshBearerToken() async -> String? {
+        if let exp = tokenExpiresAt, exp.timeIntervalSinceNow < 120 {
+            await refreshIDToken(forceRefresh: true)
+        } else if lastIDToken == nil {
+            await refreshIDToken(forceRefresh: false)
+        }
+        return bearerTokenForAPI()
+    }
+
     // MARK: - Private
 
     private func applyFirebaseUser(_ user: User?) async {

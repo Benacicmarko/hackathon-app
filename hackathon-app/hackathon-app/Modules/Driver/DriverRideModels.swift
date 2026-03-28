@@ -93,6 +93,8 @@ struct RidePassenger: Identifiable, Codable, Sendable, Equatable {
 
 struct ScheduledRide: Identifiable, Codable, Sendable, Equatable {
     var id: UUID
+    /// Backend `driver_intents.id` — set after a successful `POST /driver-intents`.
+    var backendId: String?
     var fromLocation: String
     var toLocation: String
     var departureTime: Date
@@ -106,6 +108,7 @@ struct ScheduledRide: Identifiable, Codable, Sendable, Equatable {
 
     init(
         id: UUID = UUID(),
+        backendId: String? = nil,
         fromLocation: String,
         toLocation: String,
         departureTime: Date,
@@ -116,6 +119,7 @@ struct ScheduledRide: Identifiable, Codable, Sendable, Equatable {
         options: RideOptions = RideOptions()
     ) {
         self.id = id
+        self.backendId = backendId
         self.fromLocation = fromLocation
         self.toLocation = toLocation
         self.departureTime = departureTime

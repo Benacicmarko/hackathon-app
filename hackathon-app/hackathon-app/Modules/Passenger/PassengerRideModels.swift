@@ -89,6 +89,8 @@ struct VehicleInfo: Codable, Sendable, Equatable {
 
 struct AvailableRide: Identifiable, Codable, Sendable, Equatable {
     var id: UUID
+    /// Backend `driver_intents.id` — required for `POST /driver-intents/:intentId/applications`.
+    var backendIntentId: String?
     var driver: DriverProfile
     var vehicle: VehicleInfo
     var pickupPoint: String
@@ -101,6 +103,7 @@ struct AvailableRide: Identifiable, Codable, Sendable, Equatable {
 
     init(
         id: UUID = UUID(),
+        backendIntentId: String? = nil,
         driver: DriverProfile,
         vehicle: VehicleInfo,
         pickupPoint: String,
@@ -112,6 +115,7 @@ struct AvailableRide: Identifiable, Codable, Sendable, Equatable {
         matchQuality: MatchQuality = .bestMatch
     ) {
         self.id = id
+        self.backendIntentId = backendIntentId
         self.driver = driver
         self.vehicle = vehicle
         self.pickupPoint = pickupPoint
@@ -128,6 +132,10 @@ struct AvailableRide: Identifiable, Codable, Sendable, Equatable {
 
 struct JoinedRide: Identifiable, Codable, Sendable, Equatable {
     var id: UUID
+    /// Backend `rider_applications.id` — required for `DELETE /applications/:id`.
+    var applicationId: String?
+    /// Backend `driver_intents.id` — used to poll detail / refresh status.
+    var backendIntentId: String?
     var driver: DriverProfile
     var vehicle: VehicleInfo
     var pickupLocation: String
@@ -140,6 +148,8 @@ struct JoinedRide: Identifiable, Codable, Sendable, Equatable {
 
     init(
         id: UUID = UUID(),
+        applicationId: String? = nil,
+        backendIntentId: String? = nil,
         driver: DriverProfile,
         vehicle: VehicleInfo,
         pickupLocation: String,
@@ -151,6 +161,8 @@ struct JoinedRide: Identifiable, Codable, Sendable, Equatable {
         paymentStatus: String = "Settle offline"
     ) {
         self.id = id
+        self.applicationId = applicationId
+        self.backendIntentId = backendIntentId
         self.driver = driver
         self.vehicle = vehicle
         self.pickupLocation = pickupLocation

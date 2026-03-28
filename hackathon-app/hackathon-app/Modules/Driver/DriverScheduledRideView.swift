@@ -7,6 +7,7 @@ import SwiftUI
 
 struct DriverScheduledRideView: View {
     @Bindable var store: DriverRideStore
+    @Environment(AppSession.self) private var session
     @Namespace private var rideTransition
 
     private var ride: ScheduledRide? {
@@ -58,11 +59,25 @@ struct DriverScheduledRideView: View {
                     actionButtons(for: ride)
                 }
             }
-            .animation(.default, value: ride.passengers.count)
-            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: ride.phase)
-            .navigationTitle("Your ride")
-            .navigationBarTitleDisplayMode(.inline)
-            .overlay {
+        .animation(.default, value: ride.passengers.count)
+        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: ride.phase)
+        .navigationTitle("Your ride")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Error", isPresented: Binding(
+            get: { store.errorMessage != nil },
+            set: { if !$0 { store.errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { store.errorMessage = nil }
+        } message: {
+            Text(store.errorMessage ?? "")
+        }
+        .overlay {
+            if store.isLoading {
+                Color.black.opacity(0.15).ignoresSafeArea()
+                ProgressView()
+            }
+        }
+        .overlay {
                 // Show celebration overlay for completed/cancelled
                 if ride.phase == .completed || ride.phase == .cancelled {
                     Color.black.opacity(0.3)
@@ -175,11 +190,12 @@ struct DriverScheduledRideView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 
-                Button("Cancel ride", role: .destructive) { 
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        store.cancelRide()
+                Button("Cancel ride", role: .destructive) {
+                    Task {
+                        await store.cancelRide(token: await session.freshBearerToken())
                     }
                 }
+                .disabled(store.isLoading)
             } else if ride.phase == .boarding {
                 Button {
                     withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
@@ -189,12 +205,13 @@ struct DriverScheduledRideView: View {
                     Label("Start ride", systemImage: "car.circle.fill")
                 }
                 .buttonStyle(.borderedProminent)
-                
-                Button("Cancel ride", role: .destructive) { 
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        store.cancelRide()
+
+                Button("Cancel ride", role: .destructive) {
+                    Task {
+                        await store.cancelRide(token: await session.freshBearerToken())
                     }
                 }
+                .disabled(store.isLoading)
             } else {
                 Button {
                     withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
@@ -217,30 +234,5 @@ struct DriverScheduledRideView: View {
         case .creatingRide:
             EmptyView()
         }
-    }
-}
-
-#Preview("Scheduled + passengers") {
-    let store = DriverRideStore()
-    store.startCreatingRide()
-    store.draft.fromLocation = "Home"
-    store.draft.toLocation = "Office"
-    store.confirmRide()
-    store.replacePassengers([
-        RidePassenger(
-            name: "Alex",
-            pickupLocation: "Trg bana Jelačića",
-            dropoffLocation: "Zagreb West",
-            status: .confirmed
-        ),
-        RidePassenger(
-            name: "Jamie",
-            pickupLocation: "Main station",
-            dropoffLocation: "Tech park",
-            status: .waitingForCheckIn
-        ),
-    ])
-    return NavigationStack {
-        DriverScheduledRideView(store: store)
     }
 }

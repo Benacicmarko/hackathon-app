@@ -7,6 +7,7 @@ import SwiftUI
 
 struct AvailableRidesView: View {
     @Bindable var store: PassengerRideStore
+    @Environment(AppSession.self) private var session
 
     var body: some View {
         List {
@@ -19,15 +20,15 @@ struct AvailableRidesView: View {
                     ContentUnavailableView(
                         "No rides found",
                         systemImage: "car.fill",
-                        description: Text("No drivers are heading your way at that time. Try a different departure time.")
+                        description: Text("No drivers are heading your way at that time. Try a different arrival time.")
                     )
                 }
             } else {
                 Section("\(store.availableRides.count) rides available") {
                     ForEach(store.availableRides) { ride in
-                        AvailableRideCard(ride: ride) {
-                            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                                store.joinRide(ride)
+                        AvailableRideCard(ride: ride, isLoading: store.isLoading) {
+                            Task {
+                                await store.joinRide(ride, token: await session.freshBearerToken())
                             }
                         }
                     }
@@ -40,10 +41,27 @@ struct AvailableRidesView: View {
                         store.startRequestingRide()
                     }
                 }
+                .disabled(store.isLoading)
             }
         }
         .navigationTitle("Available rides")
         .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if store.isLoading {
+                Color.black.opacity(0.15).ignoresSafeArea()
+                ProgressView("Joining…")
+                    .padding()
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .alert("Error", isPresented: Binding(
+            get: { store.errorMessage != nil },
+            set: { if !$0 { store.errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { store.errorMessage = nil }
+        } message: {
+            Text(store.errorMessage ?? "")
+        }
     }
 
     private var routeSummaryHeader: some View {
@@ -66,11 +84,11 @@ struct AvailableRidesView: View {
 
 struct AvailableRideCard: View {
     let ride: AvailableRide
+    let isLoading: Bool
     let onJoin: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Header row: driver info + match badge
             HStack(alignment: .top) {
                 driverAvatar
                 VStack(alignment: .leading, spacing: 2) {
@@ -84,7 +102,6 @@ struct AvailableRideCard: View {
 
             Divider()
 
-            // Route
             VStack(alignment: .leading, spacing: 4) {
                 LabeledContent("Pickup") {
                     Text(ride.pickupPoint)
@@ -98,7 +115,6 @@ struct AvailableRideCard: View {
                 }
             }
 
-            // Times + seats + price
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Label(ride.departureTime.formatted(date: .omitted, time: .shortened), systemImage: "clock")
@@ -119,18 +135,19 @@ struct AvailableRideCard: View {
                 }
             }
 
-            // Vehicle
-            Text(ride.vehicle.displayName)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
+            if !ride.vehicle.make.isEmpty {
+                Text(ride.vehicle.displayName)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
 
-            // Join button
             Button(action: onJoin) {
                 Label("Join ride", systemImage: "person.badge.plus")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
             .tint(ride.matchQuality.color)
+            .disabled(isLoading)
         }
         .padding(.vertical, 8)
     }
@@ -183,21 +200,9 @@ struct AvailableRideCard: View {
 
 #Preview("Available rides") {
     let store = PassengerRideStore()
-    store.rideRequest.from = "Trg bana Jelačića"
-    store.rideRequest.to = "Tehnološki park Zagreb"
-    store.submitRequest()
+    store.loadMockResults()
     return NavigationStack {
         AvailableRidesView(store: store)
     }
-}
-
-#Preview("No rides") {
-    let store = PassengerRideStore()
-    store.rideRequest.from = "Remote location"
-    store.rideRequest.to = "Nowhere"
-    // Manually set phase without adding rides
-    store.submitRequest()
-    return NavigationStack {
-        AvailableRidesView(store: store)
-    }
+    .environment(AppSession())
 }
