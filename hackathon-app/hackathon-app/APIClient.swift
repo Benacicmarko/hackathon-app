@@ -105,6 +105,11 @@ final class APIClient {
         try await post("/driver-intents/\(intentId)/start")
     }
 
+    @discardableResult
+    func finishRide(intentId: String) async throws -> StartRideResponse {
+        try await post("/driver-intents/\(intentId)/finish")
+    }
+
     // MARK: - Internal
 
     private enum Method: String { case get = "GET", post = "POST", delete = "DELETE" }

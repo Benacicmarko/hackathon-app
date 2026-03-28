@@ -388,6 +388,27 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
     return { id, status: STATUS.inProgress };
   });
 
+  app.post("/driver-intents/:id/finish", { preHandler: authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const userId = request.user!.id;
+    const intent = await prisma.driverIntent.findUnique({ where: { id } });
+    if (!intent) return reply.code(404).send({ error: "not_found" });
+    if (intent.driverUserId !== userId) return reply.code(403).send({ error: "forbidden" });
+    if (intent.status !== STATUS.inProgress) {
+      return reply.code(409).send({ error: "intent_not_in_progress" });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.driverIntent.update({
+        where: { id },
+        data: { status: STATUS.completed },
+      });
+      await tx.rideStop.deleteMany({ where: { driverIntentId: id } });
+    });
+
+    return { id, status: STATUS.completed };
+  });
+
   app.get("/driver-intents/:id/detail", { preHandler: authenticate }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const userId = request.user!.id;

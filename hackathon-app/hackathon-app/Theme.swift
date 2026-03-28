@@ -64,6 +64,7 @@ struct StatusBadge: View {
         case .fullRouting:          return FlowTheme.warning
         case .confirmed:            return FlowTheme.onPrimary
         case .inProgress:           return .white
+        case .completed:            return .white
         case .cancelled:            return FlowTheme.onSurfaceVariant
         }
     }
@@ -74,6 +75,7 @@ struct StatusBadge: View {
         case .fullRouting:          return FlowTheme.warning.opacity(0.15)
         case .confirmed:            return FlowTheme.primary
         case .inProgress:           return FlowTheme.secondary
+        case .completed:            return FlowTheme.primary.opacity(0.6)
         case .cancelled:            return FlowTheme.outline.opacity(0.3)
         }
     }

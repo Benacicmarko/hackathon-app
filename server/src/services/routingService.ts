@@ -10,6 +10,7 @@ export const STATUS = {
   routing: "full_routing",
   confirmed: "confirmed",
   inProgress: "in_progress",
+  completed: "completed",
   cancelled: "cancelled",
 } as const;
 

@@ -13,6 +13,8 @@ struct TripDetailView: View {
     @State private var showCancelConfirm = false
     @State private var isCancelling = false
     @State private var isStarting = false
+    @State private var isFinishing = false
+    @State private var showFinishConfirm = false
     @State private var pollingTask: Task<Void, Never>?
     @Environment(\.dismiss) private var dismiss
 
@@ -50,7 +52,9 @@ struct TripDetailView: View {
 
     private func detailContent(_ d: IntentDetailResponse) -> some View {
         Group {
-            if d.intentStatus == .inProgress && isRider {
+            if d.intentStatus == .completed {
+                rideFinishedView(d)
+            } else if d.intentStatus == .inProgress && isRider {
                 rideInProgressView(d)
             } else {
                 normalDetailContent(d)
@@ -350,12 +354,36 @@ struct TripDetailView: View {
                 .disabled(isStarting)
             }
 
+            if isDriver && d.intentStatus == .inProgress {
+                Button {
+                    showFinishConfirm = true
+                } label: {
+                    HStack(spacing: 10) {
+                        if isFinishing {
+                            ProgressView().tint(.white)
+                        } else {
+                            Image(systemName: "flag.checkered")
+                                .font(.system(size: 18))
+                        }
+                        Text("Finish Ride")
+                            .font(.system(size: 17, weight: .bold))
+                    }
+                }
+                .buttonStyle(FlowPrimaryButtonStyle())
+                .disabled(isFinishing)
+                .confirmationDialog("Mark this ride as finished?", isPresented: $showFinishConfirm, titleVisibility: .visible) {
+                    Button("Finish Ride") {
+                        Task { await finishRide(d) }
+                    }
+                }
+            }
+
             if d.intentStatus == .fullRouting {
                 Button("Refresh Status") { Task { await load() } }
                     .buttonStyle(FlowSecondaryButtonStyle())
             }
 
-            if let app = myApplication, d.intentStatus != .cancelled {
+            if let app = myApplication, d.intentStatus != .cancelled && d.intentStatus != .completed {
                 Button("Cancel My Application") { showCancelConfirm = true }
                     .buttonStyle(FlowPrimaryButtonStyle(isDestructive: true))
                     .disabled(isCancelling)
@@ -366,7 +394,7 @@ struct TripDetailView: View {
                     }
             }
 
-            if isDriver && d.intentStatus != .cancelled {
+            if isDriver && d.intentStatus != .cancelled && d.intentStatus != .completed && d.intentStatus != .inProgress {
                 Button("Cancel Ride") { showCancelConfirm = true }
                     .buttonStyle(FlowPrimaryButtonStyle(isDestructive: true))
                     .disabled(isCancelling)
@@ -459,6 +487,85 @@ struct TripDetailView: View {
         return d.stops.first { $0.userId == meId && $0.isPickup }
     }
 
+    // MARK: - Ride Finished
+
+    private func rideFinishedView(_ d: IntentDetailResponse) -> some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .fill(FlowTheme.primary.opacity(0.15))
+                        .frame(width: 120, height: 120)
+                    Circle()
+                        .fill(FlowTheme.primary.opacity(0.25))
+                        .frame(width: 90, height: 90)
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(FlowTheme.primary)
+                }
+
+                VStack(spacing: 8) {
+                    Text("Ride Complete!")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(FlowTheme.onSurface)
+                        .multilineTextAlignment(.center)
+
+                    Text(isRider
+                         ? "Thanks for riding with \(d.driver.displayName ?? "your driver")!"
+                         : "Great job! All riders have been dropped off.")
+                        .font(.system(size: 17))
+                        .foregroundStyle(FlowTheme.onSurfaceVariant)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                }
+
+                FlowCard {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.triangle.swap")
+                                .foregroundStyle(FlowTheme.primary)
+                            Text("Route Summary")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(FlowTheme.onSurfaceVariant)
+                        }
+                        addressLine(icon: "circle.fill", color: FlowTheme.primary, text: d.originAddress)
+                        addressLine(icon: "mappin.circle.fill", color: FlowTheme.error, text: d.destinationAddress)
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.2.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(FlowTheme.onSurfaceVariant)
+                            Text("\(d.applications.count) rider\(d.applications.count == 1 ? "" : "s")")
+                                .font(.system(size: 13))
+                                .foregroundStyle(FlowTheme.onSurfaceVariant)
+                        }
+                        .padding(.top, 4)
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+
+            Spacer()
+
+            Button {
+                if isRider {
+                    if let app = findMyApplication(d) {
+                        TripStore.shared.remove(applicationId: app.id)
+                    }
+                }
+                dismiss()
+            } label: {
+                Text("Done")
+                    .font(.system(size: 17, weight: .bold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(FlowPrimaryButtonStyle())
+            .padding(.horizontal, 20)
+            .padding(.bottom, 32)
+        }
+    }
+
     // MARK: - Google Maps Navigation
 
     private func openGoogleMapsNavigation(_ d: IntentDetailResponse) {
@@ -545,15 +652,29 @@ struct TripDetailView: View {
         }
     }
 
+    private func finishRide(_ d: IntentDetailResponse) async {
+        isFinishing = true
+        defer { isFinishing = false }
+
+        do {
+            try await APIClient.shared.finishRide(intentId: d.id)
+            await load()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     private func startPollingIfNeeded() {
-        guard isRider, detail?.intentStatus == .confirmed else { return }
+        let status = detail?.intentStatus
+        guard isRider, status == .confirmed || status == .inProgress else { return }
         pollingTask?.cancel()
         pollingTask = Task {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(5))
                 guard !Task.isCancelled else { break }
                 await load()
-                if detail?.intentStatus != .confirmed { break }
+                let current = detail?.intentStatus
+                if current != .confirmed && current != .inProgress { break }
             }
         }
     }

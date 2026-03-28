@@ -145,6 +145,7 @@ enum IntentStatus: String {
     case fullRouting = "full_routing"
     case confirmed = "confirmed"
     case inProgress = "in_progress"
+    case completed = "completed"
     case cancelled = "cancelled"
 
     var label: String {
@@ -153,6 +154,7 @@ enum IntentStatus: String {
         case .fullRouting: return "Building Route…"
         case .confirmed: return "Confirmed"
         case .inProgress: return "Ride Started"
+        case .completed: return "Completed"
         case .cancelled: return "Cancelled"
         }
     }
