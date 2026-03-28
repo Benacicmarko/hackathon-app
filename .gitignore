@@ -18,6 +18,10 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+server/.env
+server/**/*.db
+server/**/*.db-journal
+server/dist/
 thirdweb.properties
 
 google-services.json

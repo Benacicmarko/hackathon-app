@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  firebaseUid String   @unique @map("firebase_uid")
+  email       String?
+  displayName String?  @map("display_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  driverIntents DriverIntent[]
+  applications  RiderApplication[]
+  stops         RideStop[]
+
+  @@map("users")
+}
+
+model DriverIntent {
+  id                 String   @id @default(uuid())
+  driverUserId       String   @map("driver_user_id")
+  departureDate      DateTime @map("departure_date")
+  originAddress      String   @map("origin_address")
+  destinationAddress String   @map("destination_address")
+  passengerSeats     Int      @map("passenger_seats")
+  status             String
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  driver       User               @relation(fields: [driverUserId], references: [id])
+  applications RiderApplication[]
+  stops        RideStop[]
+
+  @@index([driverUserId, departureDate])
+  @@map("driver_intents")
+}
+
+model RiderApplication {
+  id               String   @id @default(uuid())
+  driverIntentId   String   @map("driver_intent_id")
+  riderUserId      String   @map("rider_user_id")
+  departureAddress String   @map("departure_address")
+  arrivalAddress   String   @map("arrival_address")
+  wantedArrivalAt  DateTime @map("wanted_arrival_at")
+  clientTimeZone   String   @map("client_time_zone")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  intent DriverIntent @relation(fields: [driverIntentId], references: [id], onDelete: Cascade)
+  rider  User         @relation(fields: [riderUserId], references: [id])
+
+  @@unique([driverIntentId, riderUserId])
+  @@index([driverIntentId])
+  @@index([riderUserId])
+  @@map("rider_applications")
+}
+
+model RideStop {
+  id             String   @id @default(uuid())
+  driverIntentId String   @map("driver_intent_id")
+  sequence       Int
+  kind           String
+  userId         String?  @map("user_id")
+  placeLabel     String   @map("place_label")
+  latitude       Float
+  longitude      Float
+  scheduledAt    DateTime @map("scheduled_at")
+
+  intent DriverIntent @relation(fields: [driverIntentId], references: [id], onDelete: Cascade)
+  user   User?        @relation(fields: [userId], references: [id])
+
+  @@index([driverIntentId])
+  @@map("ride_stops")
+}

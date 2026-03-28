@@ -2,7 +2,7 @@
 
 Tracks **completed work** against [carpool-city-01-product.md](./carpool-city-01-product.md) (what) and [carpool-city-02-technical.md](./carpool-city-02-technical.md) (how). When **every** item below is `[x]` and verified, the MVP demo path in those documents is satisfied.
 
-**Two agents:** Use **one backend agent** (Fastify, Postgres, Firebase Admin, Google Routes API) and **one frontend agent** (iOS SwiftUI, Firebase Auth, API client, UI). See [AGENT_INSTRUCTIONS.md § Two agents](./AGENT_INSTRUCTIONS.md#two-agents-recommended-split).
+**Two agents:** Use **one backend agent** (Fastify, DB via Prisma — **SQLite by default** locally; PostgreSQL on Railway/Render when configured; **Firebase Admin**; **Google Routes API**) and **one frontend agent** (iOS SwiftUI, Firebase Auth, API client, UI). See [AGENT_INSTRUCTIONS.md § Two agents](./AGENT_INSTRUCTIONS.md#two-agents-recommended-split).
 
 **Broader guidance:** [AGENT_INSTRUCTIONS.md](./AGENT_INSTRUCTIONS.md) for how to use all planning `.md` files together.
 
@@ -20,6 +20,17 @@ Tracks **completed work** against [carpool-city-01-product.md](./carpool-city-01
 5. If product/spec changes, update [carpool-city-01-product.md](./carpool-city-01-product.md) / [carpool-city-02-technical.md](./carpool-city-02-technical.md) first, then adjust this file.
 
 **Legend:** `[ ]` not started · `[~]` in progress · `[x]` done **and** verified
+
+### Implementation snapshot (2026-03-28)
+
+| Area | Status |
+|------|--------|
+| **Backend (`server/`)** | MVP REST, SQLite-by-default local DB, Prisma migrations, fill-triggered routing (`computeRoutes` + Geocoding when a Maps key is set; **deterministic mocks** when the key is empty), dev auth when Firebase is unset, `docs/DEMO.md` + `server/README.md` updated. |
+| **Gaps vs spec** | Match ranking does **not** use **`computeRouteMatrix`** yet (haversine after geocode, or seats-left heuristic without a key). **§14.1** in the technical doc is still a stub. **PostgreSQL** is not the default local DB (SQLite file); production Postgres requires changing Prisma `provider` + URL. |
+| **iOS** | Not tracked as implemented in this pass (existing Xcode project; wire to API separately). |
+| **E2E / deploy** | Not marked complete here — add rows to **Verification log** when you run the demo path on device/simulator against a real URL. |
+
+*Below, backend items marked `[x]` mean **implemented in `server/`** and aligned with [technical §12](./carpool-city-02-technical.md) unless noted. Per the rules above, treat **Verification log** as the source of truth for “tested on device / deployed API.”*
 
 ---
 
@@ -45,14 +56,14 @@ These MVP outcomes from [carpool-city-01-product.md](./carpool-city-01-product.m
 
 *Primary owner: **Backend agent** (frontend agent may skim only). Mark `[x]` when the item is **done and findings are recorded** in [carpool-city-02-technical.md](./carpool-city-02-technical.md) (e.g. new subsection under §14 or a short **§14.1 Routes API — implementation decisions**). These are **research/spike** tasks, not production E2E.*
 
-- [ ] Read [Routes API overview](https://developers.google.com/maps/documentation/routes) and the exact methods we need: **`computeRoutes`** (waypoints / intermediates, polyline, legs) and **`computeRouteMatrix`** (many O×D in one request, [limits](https://developers.google.com/maps/documentation/routes/route_matrix))
-- [ ] Confirm **authentication** for server-side calls: API key restrictions (IP / referrer), optional OAuth for Routes; never expose unrestricted keys in iOS
-- [ ] **Match ranking (§15):** decide how **`computeRouteMatrix`** is used—e.g. rider home → driver route corridor vs rider home → work vs driver O/D; how to stay within **element limits** when many open intents exist (batch, cap list, or simplify heuristic)
-- [ ] **Full car route (§16):** decide how **`computeRoutes`** is used once stop **order** is chosen—`intermediates` order, `routingPreference`, traffic vs no traffic for MVP, how **encoded polyline** is returned and stored for the app
-- [ ] **Geocoding → Routes:** confirm pipeline: address strings → lat/lng (Geocoding) → Routes requests use **Waypoint** / lat-lng as required by API version
-- [ ] Run a **spike** (curl, Postman, or small Node script): at least one successful **`computeRoutes`** with multiple intermediates; at least one **`computeRouteMatrix`** response parsed
+- [~] Read [Routes API overview](https://developers.google.com/maps/documentation/routes) and the exact methods we need: **`computeRoutes`** (waypoints / intermediates, polyline, legs) and **`computeRouteMatrix`** (many O×D in one request, [limits](https://developers.google.com/maps/documentation/routes/route_matrix)) — *`computeRoutes` is in code; matrix not used for ranking yet*
+- [~] Confirm **authentication** for server-side calls: API key restrictions (IP / referrer), optional OAuth for Routes; never expose unrestricted keys in iOS — *keys only on server; restriction policy not written up in §14.1*
+- [ ] **Match ranking (§15):** decide how **`computeRouteMatrix`** is used—e.g. rider home → driver route corridor vs rider home → work vs driver O/D; how to stay within **element limits** when many open intents exist (batch, cap list, or simplify heuristic) — *current code: haversine / geocode proximity, not matrix*
+- [~] **Full car route (§16):** decide how **`computeRoutes`** is used once stop **order** is chosen—`intermediates` order, `routingPreference`, traffic vs no traffic for MVP, how **encoded polyline** is returned and stored for the app — *implemented: FCFS pickup/drop order, `TRAFFIC_UNAWARE`, polyline optional/not persisted on `ride_stops`*
+- [x] **Geocoding → Routes:** confirm pipeline: address strings → lat/lng (Geocoding) → Routes requests use **Waypoint** / lat-lng as required by API version — *see `server/src/lib/googleMaps.ts` + `routingService.ts`*
+- [~] Run a **spike** (curl, Postman, or small Node script): at least one successful **`computeRoutes`** with multiple intermediates; at least one **`computeRouteMatrix`** response parsed — *computeRoutes path exercised via API when key set; matrix spike not done*
 - [ ] **Quota/cost:** note expected calls per “match search” and per “car full” route; document in technical spec so demos do not burn billing
-- [ ] **Summarize** in **technical spec**: paste example request/response shapes (redacted) or link to internal doc; update §15–§16 if the investigation changes the planned heuristics
+- [ ] **Summarize** in **technical spec**: paste example request/response shapes (redacted) or link to internal doc; update §15–§16 if the investigation changes the planned heuristics — *§14.1 still “fill in after spike”*
 
 ---
 
@@ -60,10 +71,10 @@ These MVP outcomes from [carpool-city-01-product.md](./carpool-city-01-product.m
 
 *Both agents (backend + frontend); blocking for a real demo.*
 
-- [ ] **API contract** agreed: paths & bodies match [technical spec §12](./carpool-city-02-technical.md); **`departureDate`** + **`clientTimeZone`** (IANA) on every request that needs cutoff logic [§10](./carpool-city-02-technical.md)
-- [ ] **Firebase:** one project; iOS has `GoogleService-Info.plist`; backend has Admin credentials in env (e.g. `GOOGLE_APPLICATION_CREDENTIALS` or JSON secret)
+- [~] **API contract** agreed: paths & bodies match [technical spec §12](./carpool-city-02-technical.md); **`departureDate`** + **`clientTimeZone`** (IANA) on every request that needs cutoff logic [§10](./carpool-city-02-technical.md) — *backend implements §12; iOS client DTOs need confirmation*
+- [~] **Firebase:** one project; iOS has `GoogleService-Info.plist`; backend has Admin credentials in env (e.g. `GOOGLE_APPLICATION_CREDENTIALS` or JSON secret) — *backend supports Admin + **dev mode without Firebase** (`server/README.md`); full stack TBD*
 - [ ] **Deployed API** has public **HTTPS** base URL (e.g. Railway/Render); iOS **Debug/Release** `API_BASE_URL` points to it
-- [ ] **Status strings** align with [technical §13](./carpool-city-02-technical.md) (`collecting_passengers`, `full_routing`, `confirmed`, `cancelled`) so iOS can branch UI
+- [x] **Status strings** align with [technical §13](./carpool-city-02-technical.md) (`collecting_passengers`, `full_routing`, `confirmed`, `cancelled`) so iOS can branch UI — *backend uses these literals*
 - [ ] **Error handling contract:** iOS parses `401` / `409` (capacity, cutoff, duplicate apply, routing failure) with user-visible messages
 
 ---
@@ -74,41 +85,41 @@ These MVP outcomes from [carpool-city-01-product.md](./carpool-city-01-product.m
 
 ### Foundation
 
-- [ ] Repo/service bootstrapped: Fastify, TypeScript, `pnpm`/`npm` scripts (`dev`, `build`, `start`)
-- [ ] PostgreSQL reachable via `DATABASE_URL`; migrations applied for schema [technical §11](./carpool-city-02-technical.md) (`users`, `driver_intents`, `rider_applications`, `ride_stops`)
-- [ ] **Firebase Admin** middleware: verify `Authorization: Bearer <Firebase ID token>`; upsert `users` row by Firebase `uid` on first request
-- [ ] `GET /health` (or `/v1/health`) for deploy checks
-- [ ] Env vars documented: `DATABASE_URL`, Maps key(s), Firebase Admin, optional `LOG_LEVEL`
+- [x] Repo/service bootstrapped: Fastify, TypeScript, `pnpm`/`npm` scripts (`dev`, `build`, `start`, `setup`, `postinstall` Prisma generate)
+- [x] Database + migrations for schema [technical §11](./carpool-city-02-technical.md) (`users`, `driver_intents`, `rider_applications`, `ride_stops`) — **default local: SQLite** `file:./prisma/dev.db`; PostgreSQL requires Prisma `provider` + `DATABASE_URL` change for deploy
+- [x] **Firebase Admin** middleware: verify `Authorization: Bearer <Firebase ID token>`; upsert `users` row by Firebase `uid` on first request — *plus dev: synthetic users from bearer string when Firebase unset; see `server/src/config.ts`*
+- [x] `GET /health` (or `/v1/health`) for deploy checks — *`GET /health` at root*
+- [x] Env vars documented: `DATABASE_URL`, Maps key(s), Firebase Admin, optional `LOG_LEVEL` — *see `server/.env.example`, `server/README.md`*
 
 ### Google Maps (server-side)
 
-- [ ] **Geocoding** used where lat/lng needed for Routes API
-- [ ] **Routes API:** `computeRouteMatrix` (or equivalent) for **match ranking** heuristic [§15](./carpool-city-02-technical.md)
-- [ ] **Routes API:** `computeRoutes` for **final** ordered stops after car is full [§16](./carpool-city-02-technical.md)
-- [ ] Stops persisted to `ride_stops`; intent status `confirmed` when routing succeeds
-- [ ] Keys only on server; quota/billing understood
+- [x] **Geocoding** used where lat/lng needed for Routes API — *mock lat/lng in development when key empty*
+- [ ] **Routes API:** `computeRouteMatrix` (or equivalent) for **match ranking** heuristic [§15](./carpool-city-02-technical.md) — *not implemented; haversine + optional geocode*
+- [x] **Routes API:** `computeRoutes` for **final** ordered stops after car is full [§16](./carpool-city-02-technical.md) — *mock legs when key empty*
+- [x] Stops persisted to `ride_stops`; intent status `confirmed` when routing succeeds
+- [~] Keys only on server; quota/billing understood — *server-only yes; quota notes not added to technical spec*
 
 ### REST API [§12](./carpool-city-02-technical.md)
 
-- [ ] `GET /v1/me` — returns profile for authenticated user
-- [ ] `POST /v1/driver-intents` — create intent (`departureDate`, addresses, `passengerSeats`, `clientTimeZone`)
-- [ ] `GET /v1/driver-intents/mine` — driver’s intents
-- [ ] `DELETE /v1/driver-intents/:id` — cancel intent per policy
-- [ ] `POST /v1/driver-intents/matches` — ranked open intents for rider query
-- [ ] `POST /v1/driver-intents/:intentId/applications` — apply; **transactional** cap **K**; **FCFS**; reject if after cutoff (start of departure local day)
-- [ ] `DELETE /v1/applications/:id` — rider withdraws; **day-before** cancel rule enforced; reopen seat; if was `confirmed`, **delete stops**, status → `collecting_passengers`
-- [ ] `GET /v1/driver-intents/:id/detail` — driver + applicants only; includes `applications[]`, `stops[]` when confirmed
-- [ ] **On last application filling car:** trigger routing (inline OK); handle **no feasible route** [§16](./carpool-city-02-technical.md) without corrupting data
+- [x] `GET /v1/me` — returns profile for authenticated user
+- [x] `POST /v1/driver-intents` — create intent (`departureDate`, addresses, `passengerSeats`, `clientTimeZone`)
+- [x] `GET /v1/driver-intents/mine` — driver’s intents
+- [x] `DELETE /v1/driver-intents/:id` — cancel intent per policy
+- [x] `POST /v1/driver-intents/matches` — ranked open intents for rider query
+- [x] `POST /v1/driver-intents/:intentId/applications` — apply; **transactional** cap **K**; **FCFS**; reject if after cutoff (start of departure local day)
+- [x] `DELETE /v1/applications/:id` — rider withdraws; **day-before** cancel rule enforced; reopen seat; if was `confirmed`, **delete stops**, status → `collecting_passengers`
+- [x] `GET /v1/driver-intents/:id/detail` — driver + applicants only; includes `applications[]`, `stops[]` when confirmed
+- [x] **On last application filling car:** trigger routing (inline OK); handle **no feasible route** [§16](./carpool-city-02-technical.md) without corrupting data — *409 `routing_failed`, last application rolled back, status restored to `collecting_passengers`*
 
 ### Non-functional [technical §8]
 
-- [ ] No **overfill** (DB unique + transaction)
+- [x] No **overfill** (DB unique + transaction)
 - [ ] Rate limit or basic abuse protection on expensive endpoints (optional but recommended)
-- [ ] Structured logging; **no** full addresses in info logs
+- [~] Structured logging; **no** full addresses in info logs — *Fastify logger on; audit for PII in logs if needed*
 
 ### Push (optional for bare MVP; required for “product complete” demo)
 
-- [ ] **FCM** or direct **APNs** from backend: notify on apply, car full / route ready, cancel — *if skipped, document “polling only” for demo*
+- [ ] **FCM** or direct **APNs** from backend: notify on apply, car full / route ready, cancel — *not implemented; polling-only demo documented in `docs/DEMO.md`*
 
 ---
 
@@ -156,8 +167,8 @@ These MVP outcomes from [carpool-city-01-product.md](./carpool-city-01-product.m
 
 ## Quality & release (either agent)
 
-- [ ] Backend lint/test (if configured); iOS build **Archive** succeeds
-- [ ] README or **docs/DEMO.md**: how to run API + iOS, env vars, test accounts
+- [~] Backend lint/test (if configured); iOS build **Archive** succeeds — *`npm run build` (tsc) passes for `server/`; no ESLint wired*
+- [x] README or **docs/DEMO.md**: how to run API + iOS, env vars, test accounts — *`server/README.md`, `docs/DEMO.md`*
 
 ---
 
@@ -167,6 +178,7 @@ These MVP outcomes from [carpool-city-01-product.md](./carpool-city-01-product.m
 
 | Date | Who | What was verified |
 |------|-----|-------------------|
+| 2026-03-28 | Backend impl | Checklist updated to match `server/` codebase (SQLite default, REST §12, routing/mocks). E2E on device/simulator not claimed here. |
 | | | |
 
 ---
@@ -175,3 +187,4 @@ These MVP outcomes from [carpool-city-01-product.md](./carpool-city-01-product.m
 
 - **Report / contact matched users** [product §7](./carpool-city-01-product.md): not required for checklist completion; stub button or omit for hackathon.
 - Technical **§18** references this file; keep sections in sync when adding endpoints.
+    
