@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MainView.swift
 //  hackathon-app
 //
 //  Created by Andre Flego on 28.03.2026..
@@ -12,13 +12,37 @@ struct MainView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                Image(systemName: "globe")
-                    .imageScale(.large)
-                    .foregroundStyle(.tint)
-                Text("Hello, world!")
+            List {
+                Section("Signed in") {
+                    if let email = session.displayEmail {
+                        LabeledContent("Email", value: email)
+                    }
+                    if let uid = session.userUID {
+                        LabeledContent("UID", value: uid)
+                    }
+                }
+
+                Section("Session") {
+                    if let exp = session.tokenExpiresAt {
+                        LabeledContent("ID token expires") {
+                            Text(exp, style: .date)
+                        }
+                    }
+                    Button("Refresh ID token") {
+                        Task { await session.refreshIDToken(forceRefresh: true) }
+                    }
+                    .disabled(session.isAuthBusy)
+                }
+
+                Section {
+                    Image(systemName: "globe")
+                        .imageScale(.large)
+                        .foregroundStyle(.tint)
+                        .frame(maxWidth: .infinity)
+                    Text("Hello, world!")
+                        .frame(maxWidth: .infinity)
+                }
             }
-            .padding()
             .navigationTitle("Zagreb Flow")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -26,6 +50,14 @@ struct MainView: View {
                         session.signOut()
                     }
                 }
+            }
+            .overlay {
+                if session.isAuthBusy {
+                    ProgressView()
+                }
+            }
+            .task {
+                await session.refreshIDToken(forceRefresh: false)
             }
         }
     }

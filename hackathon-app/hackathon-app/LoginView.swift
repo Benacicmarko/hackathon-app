@@ -23,12 +23,25 @@ private enum FlowColor {
 }
 
 struct LoginView: View {
-    var onGoogleSignIn: () -> Void = {}
-    var onEmailContinue: (String) -> Void = { _ in }
-    var onSignUp: () -> Void = {}
+    @Environment(AppSession.self) private var session
 
     @State private var email = ""
+    @State private var emailFlow: EmailFlow?
+    @State private var localHint: String?
+
     @FocusState private var emailFocused: Bool
+
+    private enum EmailFlow: Identifiable {
+        case signIn(String)
+        case signUp(String)
+
+        var id: String {
+            switch self {
+            case .signIn(let e): return "in-\(e)"
+            case .signUp(let e): return "up-\(e)"
+            }
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -47,8 +60,22 @@ struct LoginView: View {
                     .padding(.bottom, 24)
             }
             .padding(.horizontal, 24)
+
+            if session.isAuthBusy {
+                ProgressView()
+                    .tint(FlowColor.primary)
+                    .scaleEffect(1.2)
+            }
         }
         .preferredColorScheme(.dark)
+        .sheet(item: $emailFlow) { flow in
+            switch flow {
+            case .signIn(let address):
+                EmailPasswordSheet(email: address, mode: .signIn)
+            case .signUp(let address):
+                EmailPasswordSheet(email: address, mode: .signUp)
+            }
+        }
     }
 
     private var kineticBackground: some View {
@@ -96,7 +123,9 @@ struct LoginView: View {
                 }
             }
 
-            Button(action: onSignUp) {
+            authMessages
+
+            Button(action: openSignUp) {
                 Text("Don't have an account? Sign up")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(FlowColor.secondary)
@@ -143,8 +172,32 @@ struct LoginView: View {
         }
     }
 
+    private var authMessages: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let localHint {
+                Text(localHint)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(FlowColor.secondary)
+            }
+            if let err = session.authError {
+                Text(err)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color(red: 1, green: 0.4, blue: 0.45))
+                Button("Dismiss") {
+                    session.clearAuthError()
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(FlowColor.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private var googleButton: some View {
-        Button(action: onGoogleSignIn) {
+        Button {
+            localHint = nil
+            Task { await session.signInWithGoogle() }
+        } label: {
             HStack(spacing: 12) {
                 Image(.googleLogo)
                     .resizable()
@@ -162,6 +215,7 @@ struct LoginView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.scaleOnPress)
+        .disabled(session.isAuthBusy)
     }
 
     private var orDivider: some View {
@@ -206,7 +260,7 @@ struct LoginView: View {
 
     private var continueButton: some View {
         Button {
-            onEmailContinue(email.trimmingCharacters(in: .whitespacesAndNewlines))
+            openEmailSignIn()
         } label: {
             Text("Continue")
                 .font(.system(size: 15, weight: .heavy))
@@ -226,6 +280,29 @@ struct LoginView: View {
                 .shadow(color: FlowColor.primary.opacity(0.2), radius: 12, y: 6)
         }
         .buttonStyle(.scaleOnPress)
+        .disabled(session.isAuthBusy)
+    }
+
+    private func openEmailSignIn() {
+        session.clearAuthError()
+        localHint = nil
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.contains("@"), trimmed.contains(".") else {
+            localHint = "Enter a valid email address."
+            return
+        }
+        emailFlow = .signIn(trimmed)
+    }
+
+    private func openSignUp() {
+        session.clearAuthError()
+        localHint = nil
+        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.contains("@"), trimmed.contains(".") else {
+            localHint = "Enter your email above, then tap Sign up."
+            return
+        }
+        emailFlow = .signUp(trimmed)
     }
 
     private var footer: some View {
@@ -279,4 +356,5 @@ private extension ButtonStyle where Self == ScaleOnPressButtonStyle {
 
 #Preview {
     LoginView()
+        .environment(AppSession())
 }

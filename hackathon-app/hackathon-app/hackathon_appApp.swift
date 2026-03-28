@@ -5,6 +5,7 @@
 //  Created by Andre Flego on 28.03.2026..
 //
 
+import GoogleSignIn
 import SwiftUI
 
 @main
@@ -18,6 +19,7 @@ struct hackathon_appApp: App {
         WindowGroup {
             RootView()
                 .environment(appSession)
+                .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
         }
     }
 }

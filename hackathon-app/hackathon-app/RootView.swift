@@ -15,14 +15,13 @@ struct RootView: View {
             if session.isAuthenticated {
                 MainView()
             } else {
-                LoginView(
-                    onGoogleSignIn: { session.completeSignIn() },
-                    onEmailContinue: { _ in session.completeSignIn() },
-                    onSignUp: { session.completeSignIn() }
-                )
+                LoginView()
             }
         }
         .animation(.easeInOut(duration: 0.25), value: session.isAuthenticated)
+        .task {
+            session.start()
+        }
     }
 }
 
