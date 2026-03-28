@@ -91,6 +91,7 @@ struct IntentDetailResponse: Decodable, Equatable {
     let originAddress: String
     let destinationAddress: String
     let passengerSeats: Int
+    let routePolyline: String?
     let driver: DriverInfo
     let applications: [ApplicationInfo]
     let stops: [StopInfo]

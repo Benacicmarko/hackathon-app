@@ -36,6 +36,7 @@
 		AAAA00122F77F001002DE35E /* TripDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00112F77F001002DE35E /* TripDetailView.swift */; };
 		AAAA00142F77F001002DE35E /* MyRidesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00132F77F001002DE35E /* MyRidesView.swift */; };
 		AAAA00162F77F001002DE35E /* AddressSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00152F77F001002DE35E /* AddressSearchField.swift */; };
+		AAAA00182F77F001002DE35E /* PolylineDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00172F77F001002DE35E /* PolylineDecoder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 		AAAA00112F77F001002DE35E /* TripDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
 		AAAA00132F77F001002DE35E /* MyRidesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyRidesView.swift; sourceTree = "<group>"; };
 		AAAA00152F77F001002DE35E /* AddressSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressSearchField.swift; sourceTree = "<group>"; };
+		AAAA00172F77F001002DE35E /* PolylineDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolylineDecoder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +136,7 @@
 				AAAA00112F77F001002DE35E /* TripDetailView.swift */,
 				AAAA00132F77F001002DE35E /* MyRidesView.swift */,
 				AAAA00152F77F001002DE35E /* AddressSearchField.swift */,
+				AAAA00172F77F001002DE35E /* PolylineDecoder.swift */,
 			);
 			path = "hackathon-app";
 			sourceTree = "<group>";
@@ -242,6 +245,7 @@
 				AAAA00122F77F001002DE35E /* TripDetailView.swift in Sources */,
 				AAAA00142F77F001002DE35E /* MyRidesView.swift in Sources */,
 				AAAA00162F77F001002DE35E /* AddressSearchField.swift in Sources */,
+				AAAA00182F77F001002DE35E /* PolylineDecoder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

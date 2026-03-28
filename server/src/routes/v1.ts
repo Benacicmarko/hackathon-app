@@ -144,7 +144,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
 
     await prisma.driverIntent.update({
       where: { id },
-      data: { status: STATUS.cancelled },
+      data: { status: STATUS.cancelled, routePolyline: null },
     });
     await prisma.riderApplication.deleteMany({ where: { driverIntentId: id } });
     await prisma.rideStop.deleteMany({ where: { driverIntentId: id } });
@@ -305,7 +305,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
             await prisma.riderApplication.delete({ where: { id: result.appRow.id } });
             await prisma.driverIntent.update({
               where: { id: intentId },
-              data: { status: STATUS.collecting },
+              data: { status: STATUS.collecting, routePolyline: null },
             });
             return reply.code(409).send({ error: "routing_failed", message: msg });
           }
@@ -363,7 +363,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
       await prisma.rideStop.deleteMany({ where: { driverIntentId: appRow.driverIntentId } });
       await prisma.driverIntent.update({
         where: { id: appRow.driverIntentId },
-        data: { status: STATUS.collecting },
+        data: { status: STATUS.collecting, routePolyline: null },
       });
     }
 
@@ -398,6 +398,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
       originAddress: intent.originAddress,
       destinationAddress: intent.destinationAddress,
       passengerSeats: intent.passengerSeats,
+      routePolyline: intent.routePolyline ?? null,
       driver: {
         id: intent.driver.id,
         displayName: intent.driver.displayName,

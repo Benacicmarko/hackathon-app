@@ -78,9 +78,10 @@ export async function computeRoute(
     if (config.nodeEnv === "production") {
       throw new Error("GOOGLE_MAPS_API_KEY is not set");
     }
+    const allPoints = [origin, ...intermediates, destination];
     return {
       legs: mockLegs(expectedLegs),
-      encodedPolyline: undefined,
+      encodedPolyline: encodePolyline(allPoints),
     };
   }
 
@@ -138,6 +139,36 @@ function parseDurationSeconds(d?: string): number {
   if (!d) return 0;
   if (d.endsWith("s")) return Number(d.slice(0, -1)) || 0;
   return Number(d) || 0;
+}
+
+/**
+ * Encode an array of lat/lng points into a Google-encoded polyline string.
+ * Algorithm: https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+ */
+export function encodePolyline(points: LatLng[]): string {
+  let encoded = "";
+  let prevLat = 0;
+  let prevLng = 0;
+  for (const { latitude, longitude } of points) {
+    const lat = Math.round(latitude * 1e5);
+    const lng = Math.round(longitude * 1e5);
+    encoded += encodeSignedValue(lat - prevLat);
+    encoded += encodeSignedValue(lng - prevLng);
+    prevLat = lat;
+    prevLng = lng;
+  }
+  return encoded;
+}
+
+function encodeSignedValue(value: number): string {
+  let v = value < 0 ? ~(value << 1) : value << 1;
+  let result = "";
+  while (v >= 0x20) {
+    result += String.fromCharCode((0x20 | (v & 0x1f)) + 63);
+    v >>= 5;
+  }
+  result += String.fromCharCode(v + 63);
+  return result;
 }
 
 /** Haversine km — cheap proxy for match ranking without Matrix API */

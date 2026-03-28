@@ -91,37 +91,105 @@ struct TripDetailView: View {
     // MARK: - Map
 
     private func mapSection(_ d: IntentDetailResponse) -> some View {
-        let coords = d.stops.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) }
-        let region = regionForCoordinates(coords)
+        let stopCoords = d.stops.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) }
+        let routeCoords: [CLLocationCoordinate2D] = {
+            if let polyline = d.routePolyline {
+                let decoded = PolylineDecoder.decode(polyline)
+                if !decoded.isEmpty { return decoded }
+            }
+            return stopCoords
+        }()
+        let allCoords = routeCoords + stopCoords
+        let region = regionForCoordinates(allCoords)
 
         return VStack(alignment: .leading, spacing: 8) {
             FlowSectionHeader(title: "Route Map", icon: "map")
             Map(initialPosition: .region(region)) {
+                MapPolyline(coordinates: routeCoords)
+                    .stroke(
+                        FlowTheme.primary.opacity(0.8),
+                        style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round)
+                    )
+
                 ForEach(d.stops) { stop in
                     Annotation(
                         stop.placeLabel,
                         coordinate: CLLocationCoordinate2D(latitude: stop.latitude, longitude: stop.longitude)
                     ) {
-                        stopMarker(stop)
+                        stopMarker(stop, detail: d)
                     }
                 }
-                MapPolyline(coordinates: coords)
-                    .stroke(FlowTheme.primary, lineWidth: 3)
             }
             .mapStyle(.standard(pointsOfInterest: .excludingAll))
-            .frame(height: 240)
+            .frame(height: 300)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            mapLegend()
         }
     }
 
-    private func stopMarker(_ stop: StopInfo) -> some View {
-        ZStack {
-            Circle()
-                .fill(stop.isPickup ? FlowTheme.primary : FlowTheme.error)
-                .frame(width: 28, height: 28)
-            Image(systemName: stop.isPickup ? "arrow.up" : "arrow.down")
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(.white)
+    private func stopMarker(_ stop: StopInfo, detail d: IntentDetailResponse) -> some View {
+        let isDriverStop = stop.userId == d.driver.id
+        let markerColor: Color = {
+            if isDriverStop { return FlowTheme.warning }
+            return stop.isPickup ? FlowTheme.primary : FlowTheme.error
+        }()
+        let iconName: String = {
+            if isDriverStop { return "car.fill" }
+            return stop.isPickup ? "person.fill.badge.plus" : "person.fill.checkmark"
+        }()
+
+        return VStack(spacing: 2) {
+            ZStack {
+                Circle()
+                    .fill(markerColor)
+                    .frame(width: 34, height: 34)
+                    .shadow(color: markerColor.opacity(0.4), radius: 4, y: 2)
+                Image(systemName: iconName)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            Text(riderName(for: stop, in: d))
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(FlowTheme.onSurface)
+                .lineLimit(1)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 2)
+                .background(FlowTheme.surfaceContainerHi.opacity(0.9))
+                .clipShape(Capsule())
+        }
+    }
+
+    private func riderName(for stop: StopInfo, in d: IntentDetailResponse) -> String {
+        if stop.userId == d.driver.id { return "You (Driver)" }
+        if let app = d.applications.first(where: { $0.riderId == stop.userId }) {
+            let name = app.riderDisplayName ?? "Rider"
+            return stop.isPickup ? "\(name) pickup" : "\(name) dropoff"
+        }
+        return stop.isPickup ? "Pickup" : "Dropoff"
+    }
+
+    private func mapLegend() -> some View {
+        HStack(spacing: 16) {
+            legendItem(color: FlowTheme.warning, icon: "car.fill", label: "Driver")
+            legendItem(color: FlowTheme.primary, icon: "person.fill.badge.plus", label: "Pickup")
+            legendItem(color: FlowTheme.error, icon: "person.fill.checkmark", label: "Dropoff")
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+    }
+
+    private func legendItem(color: Color, icon: String, label: String) -> some View {
+        HStack(spacing: 4) {
+            ZStack {
+                Circle().fill(color).frame(width: 20, height: 20)
+                Image(systemName: icon)
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            Text(label)
+                .font(.system(size: 11))
+                .foregroundStyle(FlowTheme.onSurfaceVariant)
         }
     }
 
