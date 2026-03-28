@@ -27,7 +27,7 @@ export function initFirebaseAdmin(): void {
     initialized = true;
     return;
   }
-  if (admin.apps.length > 0) {
+  if (admin.apps?.length) {
     initialized = true;
     return;
   }
