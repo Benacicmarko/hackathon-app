@@ -289,6 +289,15 @@ For **your** iOS build to work **properly** against a **real** server (not dev m
 
 You do **not** paste the **Google server API key** into the iOS app — routing and geocoding stay on the backend.
 
+**Exact Google APIs used by the server** (for reference — you don't call these from iOS):
+
+| API | Purpose |
+|-----|---------|
+| **Geocoding API** | Address → lat/lng for ranking and routing. |
+| **Routes API** (`computeRoutes`) | Ordered waypoint driving route; per-leg durations. |
+
+No other Google APIs (Directions, Distance Matrix, Places, Maps SDK) are used server-side.
+
 ---
 
 ## 6. Quick manual check (before deep UI work)
