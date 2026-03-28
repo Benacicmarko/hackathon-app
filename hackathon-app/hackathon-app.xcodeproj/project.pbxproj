@@ -20,6 +20,11 @@
 		65E8965E2F77E89E002DE35E /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896572F77E89E002DE35E /* RootView.swift */; };
 		65E8965F2F77E89E002DE35E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65E8964F2F77E89E002DE35E /* Assets.xcassets */; };
 		65E896622F77ED70002DE35E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 65E896612F77ED70002DE35E /* GoogleService-Info.plist */; };
+		65E8967A2F77FD41002DE35E /* GooglePlacesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896792F77FD41002DE35E /* GooglePlacesService.swift */; };
+		65E8967C2F77FD50002DE35E /* AddressAutocompleteField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E8967B2F77FD50002DE35E /* AddressAutocompleteField.swift */; };
+		65E8967E2F77FD72002DE35E /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E8967D2F77FD72002DE35E /* AppConfiguration.swift */; };
+		65E896812F77FDA2002DE35E /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = 65E896802F77FDA2002DE35E /* GooglePlaces */; };
+		65E896832F77FDA2002DE35E /* GooglePlacesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 65E896822F77FDA2002DE35E /* GooglePlacesSwift */; };
 		65E896D12F77E89E002DE35E /* AuthKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896D02F77E89E002DE35E /* AuthKeychain.swift */; };
 		65E896D32F77E89E002DE35E /* SessionMetadataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896D22F77E89E002DE35E /* SessionMetadataStore.swift */; };
 		65E896D52F77E89E002DE35E /* UIApplication+TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */; };
@@ -42,6 +47,9 @@
 		65E896562F77E89E002DE35E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		65E896572F77E89E002DE35E /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		65E896612F77ED70002DE35E /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		65E896792F77FD41002DE35E /* GooglePlacesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GooglePlacesService.swift; sourceTree = "<group>"; };
+		65E8967B2F77FD50002DE35E /* AddressAutocompleteField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressAutocompleteField.swift; sourceTree = "<group>"; };
+		65E8967D2F77FD72002DE35E /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 		65E896D02F77E89E002DE35E /* AuthKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthKeychain.swift; sourceTree = "<group>"; };
 		65E896D22F77E89E002DE35E /* SessionMetadataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionMetadataStore.swift; sourceTree = "<group>"; };
 		65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+TopViewController.swift"; sourceTree = "<group>"; };
@@ -61,6 +69,8 @@
 			files = (
 				65E896382F77DEA5002DE35E /* FirebaseAnalytics in Frameworks */,
 				65E8963C2F77DEA5002DE35E /* FirebaseAuthCombine-Community in Frameworks */,
+				65E896812F77FDA2002DE35E /* GooglePlaces in Frameworks */,
+				65E896832F77FDA2002DE35E /* GooglePlacesSwift in Frameworks */,
 				65E896402F77DEA5002DE35E /* FirebaseCrashlytics in Frameworks */,
 				65E8963E2F77DEA5002DE35E /* FirebaseCore in Frameworks */,
 				65E8963A2F77DEA5002DE35E /* FirebaseAuth in Frameworks */,
@@ -156,6 +166,9 @@
 				65E897142F77F900002DE35E /* DriverRideCreationView.swift */,
 				65E897152F77F900002DE35E /* DriverScheduledRideView.swift */,
 				65E897162F77F900002DE35E /* DriverHomeView.swift */,
+				65E896792F77FD41002DE35E /* GooglePlacesService.swift */,
+				65E8967B2F77FD50002DE35E /* AddressAutocompleteField.swift */,
+				65E8967D2F77FD72002DE35E /* AppConfiguration.swift */,
 			);
 			path = Driver;
 			sourceTree = "<group>";
@@ -183,6 +196,8 @@
 				65E8963D2F77DEA5002DE35E /* FirebaseCore */,
 				65E8963F2F77DEA5002DE35E /* FirebaseCrashlytics */,
 				65E896DA2F77E89E002DE35E /* GoogleSignIn */,
+				65E896802F77FDA2002DE35E /* GooglePlaces */,
+				65E896822F77FDA2002DE35E /* GooglePlacesSwift */,
 			);
 			productName = "hackathon-app";
 			productReference = 65E896282F77DC28002DE35E /* hackathon-app.app */;
@@ -215,6 +230,7 @@
 			packageReferences = (
 				65E896362F77DEA5002DE35E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				65E896D92F77E89E002DE35E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				65E8967F2F77FDA2002DE35E /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 65E896292F77DC28002DE35E /* Products */;
@@ -243,6 +259,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65E8967E2F77FD72002DE35E /* AppConfiguration.swift in Sources */,
 				65E896592F77E89E002DE35E /* AppDelegate.swift in Sources */,
 				65E8965A2F77E89E002DE35E /* AppSession.swift in Sources */,
 				65E8965B2F77E89E002DE35E /* MainView.swift in Sources */,
@@ -253,10 +270,12 @@
 				65E896D32F77E89E002DE35E /* SessionMetadataStore.swift in Sources */,
 				65E896D52F77E89E002DE35E /* UIApplication+TopViewController.swift in Sources */,
 				65E896D72F77E89E002DE35E /* EmailPasswordSheet.swift in Sources */,
+				65E8967A2F77FD41002DE35E /* GooglePlacesService.swift in Sources */,
 				65E897172F77F900002DE35E /* DriverRideModels.swift in Sources */,
 				65E897182F77F900002DE35E /* DriverRideStore.swift in Sources */,
 				65E897192F77F900002DE35E /* DriverRideCreationView.swift in Sources */,
 				65E8971A2F77F900002DE35E /* DriverScheduledRideView.swift in Sources */,
+				65E8967C2F77FD50002DE35E /* AddressAutocompleteField.swift in Sources */,
 				65E8971B2F77F900002DE35E /* DriverHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -487,6 +506,14 @@
 				minimumVersion = 12.11.0;
 			};
 		};
+		65E8967F2F77FDA2002DE35E /* XCRemoteSwiftPackageReference "ios-places-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-places-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.10.0;
+			};
+		};
 		65E896D92F77E89E002DE35E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
@@ -522,6 +549,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 65E896362F77DEA5002DE35E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		65E896802F77FDA2002DE35E /* GooglePlaces */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65E8967F2F77FDA2002DE35E /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlaces;
+		};
+		65E896822F77FDA2002DE35E /* GooglePlacesSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65E8967F2F77FDA2002DE35E /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlacesSwift;
 		};
 		65E896DA2F77E89E002DE35E /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

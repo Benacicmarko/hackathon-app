@@ -7,6 +7,7 @@ import SwiftUI
 
 struct DriverRideCreationView: View {
     @Bindable var store: DriverRideStore
+    @Environment(GooglePlacesService.self) private var placesService
 
     private var isEditingExistingRide: Bool {
         store.activeRide != nil
@@ -20,10 +21,18 @@ struct DriverRideCreationView: View {
     var body: some View {
         Form {
             Section("Route") {
-                TextField("From", text: $store.draft.fromLocation)
-                    .textContentType(.fullStreetAddress)
-                TextField("To", text: $store.draft.toLocation)
-                    .textContentType(.fullStreetAddress)
+                AddressAutocompleteField(
+                    title: "From",
+                    text: $store.draft.fromLocation,
+                    placesService: placesService
+                )
+                
+                AddressAutocompleteField(
+                    title: "To",
+                    text: $store.draft.toLocation,
+                    placesService: placesService
+                )
+                
                 DatePicker("Departure", selection: $store.draft.departureTime, displayedComponents: [.date, .hourAndMinute])
                 Stepper(value: $store.draft.availableSeats, in: 1...8) {
                     Text("Passenger seats: \(store.draft.availableSeats)")
@@ -77,4 +86,5 @@ struct DriverRideCreationView: View {
     NavigationStack {
         DriverRideCreationView(store: DriverRideStore())
     }
+    .environment(GooglePlacesService(apiKey: "YOUR_API_KEY_HERE"))
 }

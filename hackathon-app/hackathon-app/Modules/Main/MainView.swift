@@ -90,4 +90,5 @@ struct CarpoolHomeView: View {
     MainView()
         .environment(AppSession())
         .environment(DriverRideStore())
+        .environment(GooglePlacesService(apiKey: "YOUR_API_KEY_HERE"))
 }

@@ -15,12 +15,14 @@ struct hackathon_appApp: App {
 
     @State private var appSession = AppSession()
     @State private var driverRideStore = DriverRideStore()
+    @State private var googlePlacesService = GooglePlacesService(apiKey: AppConfiguration.googlePlacesAPIKey)
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(appSession)
                 .environment(driverRideStore)
+                .environment(googlePlacesService)
                 .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
         }
     }
