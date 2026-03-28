@@ -36,13 +36,13 @@ export async function geocodeAddress(address: string): Promise<LatLng> {
   if (!res.ok) throw new Error(`Geocoding HTTP ${res.status}`);
   const data = (await res.json()) as {
     status: string;
-    results?: { geometry: { location: LatLng } }[];
+    results?: { geometry: { location: { lat: number; lng: number } } }[];
   };
   if (data.status !== "OK" || !data.results?.[0]) {
     throw new Error(`Geocoding failed: ${data.status}`);
   }
   const loc = data.results[0].geometry.location;
-  return { latitude: loc.latitude, longitude: loc.longitude };
+  return { latitude: loc.lat, longitude: loc.lng };
 }
 
 export type RouteLegSummary = {

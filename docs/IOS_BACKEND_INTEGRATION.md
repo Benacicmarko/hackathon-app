@@ -69,7 +69,7 @@ Example: `GET /me` → request URL = `API_BASE_URL` + `/me` → e.g. `http://127
 
 ### 1.2 Authentication header (every protected endpoint)
 
-Send on **every** request under `/v1` except none are public except you still need auth for all listed routes:
+**All `/v1` endpoints require authentication.** Send on every request:
 
 ```http
 Authorization: Bearer <token>
@@ -120,6 +120,8 @@ Use **exact** string equality (backend literals):
 | `full_routing` | Car just filled; server computing route (short-lived). Show “Building route…” or poll `GET …/detail`. |
 | `confirmed` | Route done; `stops[]` populated on detail. |
 | `cancelled` | Intent ended. |
+
+**Not yet implemented:** `in_progress` and `completed` (mentioned in the technical spec lifecycle but not in backend code for MVP). Treat any status not in this table as unknown / future.
 
 ---
 
@@ -254,6 +256,8 @@ Base path prefix: **`API_BASE_URL`** (already includes `/v1`).
 - **Errors:** `403` forbidden, `404` not found, `401`.
 
 **Map:** Use `stops` coordinates and order for MapKit polylines or markers; encoded polyline is not guaranteed in the MVP JSON (legs come from server routing).
+
+**Note:** `stops[]` does **not** include the driver's final destination — it ends at the last rider dropoff. To show the full route on a map, append the intent's `destinationAddress` (or geocode it client-side) as the last point after all stops.
 
 ---
 
