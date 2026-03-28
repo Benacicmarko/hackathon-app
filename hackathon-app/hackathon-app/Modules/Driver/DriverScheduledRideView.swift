@@ -7,6 +7,7 @@ import SwiftUI
 
 struct DriverScheduledRideView: View {
     @Bindable var store: DriverRideStore
+    @Namespace private var rideTransition
 
     private var ride: ScheduledRide? {
         store.activeRide
@@ -15,6 +16,13 @@ struct DriverScheduledRideView: View {
     var body: some View {
         if let ride {
             List {
+                // Visual progress indicator (only for active phases)
+                if ride.phase != .cancelled && ride.phase != .creatingRide {
+                    Section {
+                        RidePhaseProgressView(currentPhase: ride.phase)
+                    }
+                }
+                
                 Section {
                     rideSummaryCard(ride)
                 }
@@ -25,6 +33,7 @@ struct DriverScheduledRideView: View {
                     }
                     LabeledContent("Seats free") {
                         Text("\(ride.seatsRemaining) of \(ride.availableSeats)")
+                            .contentTransition(.numericText())
                     }
                 }
 
@@ -32,6 +41,10 @@ struct DriverScheduledRideView: View {
                     Section("Passengers") {
                         ForEach(ride.passengers) { passenger in
                             passengerRow(passenger)
+                                .transition(.asymmetric(
+                                    insertion: .scale.combined(with: .opacity),
+                                    removal: .opacity
+                                ))
                         }
                     }
                 } else {
@@ -45,8 +58,21 @@ struct DriverScheduledRideView: View {
                     actionButtons(for: ride)
                 }
             }
+            .animation(.default, value: ride.passengers.count)
+            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: ride.phase)
             .navigationTitle("Your ride")
             .navigationBarTitleDisplayMode(.inline)
+            .overlay {
+                // Show celebration overlay for completed/cancelled
+                if ride.phase == .completed || ride.phase == .cancelled {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                    
+                    RideCompletionCelebrationView(ride: ride)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
         }
     }
 
@@ -54,13 +80,12 @@ struct DriverScheduledRideView: View {
     private func rideSummaryCard(_ ride: ScheduledRide) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(ride.phase.displayTitle)
-                    .font(.subheadline.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(.quaternary, in: Capsule())
+                // Animated compact phase badge
+                CompactRidePhaseView(currentPhase: ride.phase)
+                
                 Spacer()
             }
+            
             LabeledContent("From") {
                 Text(ride.fromLocation)
                     .multilineTextAlignment(.trailing)
@@ -74,6 +99,7 @@ struct DriverScheduledRideView: View {
             }
             LabeledContent("Seats") {
                 Text("\(ride.availableSeats) offered · \(ride.seatsRemaining) free")
+                    .contentTransition(.numericText())
             }
         }
         .padding(.vertical, 4)
@@ -135,17 +161,59 @@ struct DriverScheduledRideView: View {
         switch ride.phase {
         case .scheduledRide, .boarding, .inProgress:
             if ride.phase == .scheduledRide {
-                Button("Edit ride") { store.editRide() }
-                Button("Start boarding") { store.startBoarding() }
-                Button("Cancel ride", role: .destructive) { store.cancelRide() }
+                Button("Edit ride") { 
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        store.editRide()
+                    }
+                }
+                Button {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                        store.startBoarding()
+                    }
+                } label: {
+                    Label("Start boarding", systemImage: "person.2.wave.2")
+                }
+                .buttonStyle(.borderedProminent)
+                
+                Button("Cancel ride", role: .destructive) { 
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        store.cancelRide()
+                    }
+                }
             } else if ride.phase == .boarding {
-                Button("Start ride") { store.startRide() }
-                Button("Cancel ride", role: .destructive) { store.cancelRide() }
+                Button {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                        store.startRide()
+                    }
+                } label: {
+                    Label("Start ride", systemImage: "car.circle.fill")
+                }
+                .buttonStyle(.borderedProminent)
+                
+                Button("Cancel ride", role: .destructive) { 
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        store.cancelRide()
+                    }
+                }
             } else {
-                Button("Finish ride") { store.finishRide() }
+                Button {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                        store.finishRide()
+                    }
+                } label: {
+                    Label("Finish ride", systemImage: "checkmark.circle.fill")
+                }
+                .buttonStyle(.borderedProminent)
             }
         case .completed, .cancelled:
-            Button("Done") { store.dismissCompletedOrCancelledRide() }
+            Button {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    store.dismissCompletedOrCancelledRide()
+                }
+            } label: {
+                Label("Done", systemImage: "checkmark")
+            }
+            .buttonStyle(.borderedProminent)
         case .creatingRide:
             EmptyView()
         }

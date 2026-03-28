@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 // MARK: - Phase & passenger status
 
@@ -150,6 +151,28 @@ extension DriverRidePhase {
         case .inProgress: "In progress"
         case .completed: "Completed"
         case .cancelled: "Cancelled"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .creatingRide: "doc.badge.plus"
+        case .scheduledRide: "calendar.badge.clock"
+        case .boarding: "person.2.wave.2"
+        case .inProgress: "car.circle.fill"
+        case .completed: "checkmark.circle.fill"
+        case .cancelled: "xmark.circle.fill"
+        }
+    }
+    
+    var accentColor: Color {
+        switch self {
+        case .creatingRide: .blue
+        case .scheduledRide: .blue
+        case .boarding: .orange
+        case .inProgress: .green
+        case .completed: .green
+        case .cancelled: .red
         }
     }
 }
