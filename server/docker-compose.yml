@@ -1,0 +1,19 @@
+# Optional: local Postgres without Homebrew install
+# From server/: docker compose up -d
+# Then set DATABASE_URL in .env to:
+# postgresql://carpool:carpool_local@localhost:5432/carpool?schema=public
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: carpool
+      POSTGRES_PASSWORD: carpool_local
+      POSTGRES_DB: carpool
+    ports:
+      - "5432:5432"
+    volumes:
+      - carpool_pgdata:/var/lib/postgresql/data
+
+volumes:
+  carpool_pgdata:

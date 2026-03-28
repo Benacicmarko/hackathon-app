@@ -1,0 +1,34 @@
+{
+  "name": "carpool-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "DATABASE_URL=\"file:./prisma/dev.db\" prisma generate",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "setup": "DATABASE_URL=\"${DATABASE_URL:-file:./prisma/dev.db}\" prisma migrate deploy",
+    "dev:ready": "npm run setup && npm run dev",
+    "db:generate": "DATABASE_URL=\"${DATABASE_URL:-file:./prisma/dev.db}\" prisma generate",
+    "db:migrate": "DATABASE_URL=\"${DATABASE_URL:-file:./prisma/dev.db}\" prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.2",
+    "@prisma/client": "^6.3.1",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "firebase-admin": "^13.0.2",
+    "luxon": "^3.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^22.10.5",
+    "prisma": "^6.3.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
