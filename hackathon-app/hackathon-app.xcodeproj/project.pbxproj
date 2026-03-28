@@ -25,6 +25,16 @@
 		65E896D52F77E89E002DE35E /* UIApplication+TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */; };
 		65E896D72F77E89E002DE35E /* EmailPasswordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896D62F77E89E002DE35E /* EmailPasswordSheet.swift */; };
 		65E896DB2F77E89E002DE35E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 65E896DA2F77E89E002DE35E /* GoogleSignIn */; };
+		AAAA00022F77F001002DE35E /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00012F77F001002DE35E /* APIClient.swift */; };
+		AAAA00042F77F001002DE35E /* DTOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00032F77F001002DE35E /* DTOs.swift */; };
+		AAAA00062F77F001002DE35E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00052F77F001002DE35E /* Theme.swift */; };
+		AAAA00082F77F001002DE35E /* TripStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00072F77F001002DE35E /* TripStore.swift */; };
+		AAAA000A2F77F001002DE35E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00092F77F001002DE35E /* HomeView.swift */; };
+		AAAA000C2F77F001002DE35E /* CreateIntentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA000B2F77F001002DE35E /* CreateIntentView.swift */; };
+		AAAA000E2F77F001002DE35E /* MyIntentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA000D2F77F001002DE35E /* MyIntentsView.swift */; };
+		AAAA00102F77F001002DE35E /* RideSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA000F2F77F001002DE35E /* RideSearchView.swift */; };
+		AAAA00122F77F001002DE35E /* TripDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00112F77F001002DE35E /* TripDetailView.swift */; };
+		AAAA00142F77F001002DE35E /* MyRidesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00132F77F001002DE35E /* MyRidesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +52,16 @@
 		65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+TopViewController.swift"; sourceTree = "<group>"; };
 		65E896D62F77E89E002DE35E /* EmailPasswordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailPasswordSheet.swift; sourceTree = "<group>"; };
 		65E896D82F77E89E002DE35E /* GoogleSignInURLScheme.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = GoogleSignInURLScheme.plist; sourceTree = "<group>"; };
+		AAAA00012F77F001002DE35E /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		AAAA00032F77F001002DE35E /* DTOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DTOs.swift; sourceTree = "<group>"; };
+		AAAA00052F77F001002DE35E /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		AAAA00072F77F001002DE35E /* TripStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripStore.swift; sourceTree = "<group>"; };
+		AAAA00092F77F001002DE35E /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		AAAA000B2F77F001002DE35E /* CreateIntentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIntentView.swift; sourceTree = "<group>"; };
+		AAAA000D2F77F001002DE35E /* MyIntentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyIntentsView.swift; sourceTree = "<group>"; };
+		AAAA000F2F77F001002DE35E /* RideSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RideSearchView.swift; sourceTree = "<group>"; };
+		AAAA00112F77F001002DE35E /* TripDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripDetailView.swift; sourceTree = "<group>"; };
+		AAAA00132F77F001002DE35E /* MyRidesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyRidesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +121,16 @@
 				65E896572F77E89E002DE35E /* RootView.swift */,
 				65E896562F77E89E002DE35E /* LoginView.swift */,
 				65E896542F77E89E002DE35E /* MainView.swift */,
+				AAAA00012F77F001002DE35E /* APIClient.swift */,
+				AAAA00032F77F001002DE35E /* DTOs.swift */,
+				AAAA00052F77F001002DE35E /* Theme.swift */,
+				AAAA00072F77F001002DE35E /* TripStore.swift */,
+				AAAA00092F77F001002DE35E /* HomeView.swift */,
+				AAAA000B2F77F001002DE35E /* CreateIntentView.swift */,
+				AAAA000D2F77F001002DE35E /* MyIntentsView.swift */,
+				AAAA000F2F77F001002DE35E /* RideSearchView.swift */,
+				AAAA00112F77F001002DE35E /* TripDetailView.swift */,
+				AAAA00132F77F001002DE35E /* MyRidesView.swift */,
 			);
 			path = "hackathon-app";
 			sourceTree = "<group>";
@@ -198,6 +228,16 @@
 				65E896D32F77E89E002DE35E /* SessionMetadataStore.swift in Sources */,
 				65E896D52F77E89E002DE35E /* UIApplication+TopViewController.swift in Sources */,
 				65E896D72F77E89E002DE35E /* EmailPasswordSheet.swift in Sources */,
+				AAAA00022F77F001002DE35E /* APIClient.swift in Sources */,
+				AAAA00042F77F001002DE35E /* DTOs.swift in Sources */,
+				AAAA00062F77F001002DE35E /* Theme.swift in Sources */,
+				AAAA00082F77F001002DE35E /* TripStore.swift in Sources */,
+				AAAA000A2F77F001002DE35E /* HomeView.swift in Sources */,
+				AAAA000C2F77F001002DE35E /* CreateIntentView.swift in Sources */,
+				AAAA000E2F77F001002DE35E /* MyIntentsView.swift in Sources */,
+				AAAA00102F77F001002DE35E /* RideSearchView.swift in Sources */,
+				AAAA00122F77F001002DE35E /* TripDetailView.swift in Sources */,
+				AAAA00142F77F001002DE35E /* MyRidesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
