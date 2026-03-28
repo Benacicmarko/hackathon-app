@@ -11,10 +11,13 @@ import SwiftUI
 struct hackathon_appApp: App {
     // Connect AppDelegate for Firebase initialization
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
+    @State private var appSession = AppSession()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(appSession)
         }
     }
 }

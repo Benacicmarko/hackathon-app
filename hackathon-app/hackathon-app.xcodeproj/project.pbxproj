@@ -12,19 +12,27 @@
 		65E8963C2F77DEA5002DE35E /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 65E8963B2F77DEA5002DE35E /* FirebaseAuthCombine-Community */; };
 		65E8963E2F77DEA5002DE35E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 65E8963D2F77DEA5002DE35E /* FirebaseCore */; };
 		65E896402F77DEA5002DE35E /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 65E8963F2F77DEA5002DE35E /* FirebaseCrashlytics */; };
+		65E896592F77E89E002DE35E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896522F77E89E002DE35E /* AppDelegate.swift */; };
+		65E8965A2F77E89E002DE35E /* AppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896532F77E89E002DE35E /* AppSession.swift */; };
+		65E8965B2F77E89E002DE35E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896542F77E89E002DE35E /* MainView.swift */; };
+		65E8965C2F77E89E002DE35E /* hackathon_appApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896552F77E89E002DE35E /* hackathon_appApp.swift */; };
+		65E8965D2F77E89E002DE35E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896562F77E89E002DE35E /* LoginView.swift */; };
+		65E8965E2F77E89E002DE35E /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896572F77E89E002DE35E /* RootView.swift */; };
+		65E8965F2F77E89E002DE35E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 65E8964F2F77E89E002DE35E /* Assets.xcassets */; };
+		65E896602F77E89E002DE35E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 65E896502F77E89E002DE35E /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		65E896282F77DC28002DE35E /* hackathon-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "hackathon-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		65E8964F2F77E89E002DE35E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		65E896502F77E89E002DE35E /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		65E896522F77E89E002DE35E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		65E896532F77E89E002DE35E /* AppSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSession.swift; sourceTree = "<group>"; };
+		65E896542F77E89E002DE35E /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		65E896552F77E89E002DE35E /* hackathon_appApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = hackathon_appApp.swift; sourceTree = "<group>"; };
+		65E896562F77E89E002DE35E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		65E896572F77E89E002DE35E /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		65E8962A2F77DC28002DE35E /* hackathon-app */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "hackathon-app";
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		65E896252F77DC27002DE35E /* Frameworks */ = {
@@ -45,7 +53,7 @@
 		65E8961F2F77DC27002DE35E = {
 			isa = PBXGroup;
 			children = (
-				65E8962A2F77DC28002DE35E /* hackathon-app */,
+				65E896582F77E89E002DE35E /* hackathon-app */,
 				65E896292F77DC28002DE35E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +64,29 @@
 				65E896282F77DC28002DE35E /* hackathon-app.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		65E896512F77E89E002DE35E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				65E8964F2F77E89E002DE35E /* Assets.xcassets */,
+				65E896502F77E89E002DE35E /* GoogleService-Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		65E896582F77E89E002DE35E /* hackathon-app */ = {
+			isa = PBXGroup;
+			children = (
+				65E896512F77E89E002DE35E /* Resources */,
+				65E896522F77E89E002DE35E /* AppDelegate.swift */,
+				65E896552F77E89E002DE35E /* hackathon_appApp.swift */,
+				65E896532F77E89E002DE35E /* AppSession.swift */,
+				65E896572F77E89E002DE35E /* RootView.swift */,
+				65E896562F77E89E002DE35E /* LoginView.swift */,
+				65E896542F77E89E002DE35E /* MainView.swift */,
+			);
+			path = "hackathon-app";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -72,9 +103,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				65E8962A2F77DC28002DE35E /* hackathon-app */,
 			);
 			name = "hackathon-app";
 			packageProductDependencies = (
@@ -130,6 +158,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65E8965F2F77E89E002DE35E /* Assets.xcassets in Resources */,
+				65E896602F77E89E002DE35E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +170,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				65E896592F77E89E002DE35E /* AppDelegate.swift in Sources */,
+				65E8965A2F77E89E002DE35E /* AppSession.swift in Sources */,
+				65E8965B2F77E89E002DE35E /* MainView.swift in Sources */,
+				65E8965C2F77E89E002DE35E /* hackathon_appApp.swift in Sources */,
+				65E8965D2F77E89E002DE35E /* LoginView.swift in Sources */,
+				65E8965E2F77E89E002DE35E /* RootView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,11 +313,13 @@
 				DEVELOPMENT_TEAM = 48PF583MW4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -309,11 +347,13 @@
 				DEVELOPMENT_TEAM = 48PF583MW4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.navigation";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
