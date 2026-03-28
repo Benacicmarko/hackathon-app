@@ -22,11 +22,22 @@ Health: `GET http://localhost:3000/health`. API: `http://localhost:3000/v1`.
 
 Copy `.env.example` to `.env` and set `DATABASE_URL` to a PostgreSQL URL. The Prisma schema targets SQLite by default; for PostgreSQL you would change `provider` in `prisma/schema.prisma` and add a matching migration (or use `db push` for experiments). The repo also includes `docker compose` for a local Postgres matching the old sample URL.
 
+## Google Cloud APIs required
+
+The backend calls exactly **two** Google APIs (both with the same `GOOGLE_MAPS_API_KEY`):
+
+| API | What it does in this app |
+|-----|--------------------------|
+| **Geocoding API** | Converts address strings → lat/lng (used in match ranking and route building). |
+| **Routes API** (`computeRoutes`) | Computes the driving route with ordered waypoints; returns per-leg durations and optional polyline. |
+
+Enable both in [Google Cloud Console](https://console.cloud.google.com/) on the same project/key. No other Google APIs (Directions, Distance Matrix, Places, Maps SDK) are called from the server.
+
 ## Production-style setup
 
 1. **PostgreSQL** — Railway, Neon, RDS, or `docker compose up -d` in `server/`.
 2. **Firebase Admin** — Firebase Console → Project settings → Service accounts → Generate new private key. Set `FIREBASE_SERVICE_ACCOUNT_JSON` (single line) or `GOOGLE_APPLICATION_CREDENTIALS`.
-3. **Google Maps** — Enable Geocoding API and Routes API on the same key; set `GOOGLE_MAPS_API_KEY`.
+3. **Google Maps** — Enable **Geocoding API** and **Routes API** on the same key; set `GOOGLE_MAPS_API_KEY`.
 
 ## Scripts
 
