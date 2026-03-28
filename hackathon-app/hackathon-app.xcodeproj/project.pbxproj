@@ -25,6 +25,11 @@
 		65E896D52F77E89E002DE35E /* UIApplication+TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */; };
 		65E896D72F77E89E002DE35E /* EmailPasswordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E896D62F77E89E002DE35E /* EmailPasswordSheet.swift */; };
 		65E896DB2F77E89E002DE35E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 65E896DA2F77E89E002DE35E /* GoogleSignIn */; };
+		65E897172F77F900002DE35E /* DriverRideModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E897122F77F900002DE35E /* DriverRideModels.swift */; };
+		65E897182F77F900002DE35E /* DriverRideStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E897132F77F900002DE35E /* DriverRideStore.swift */; };
+		65E897192F77F900002DE35E /* DriverRideCreationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E897142F77F900002DE35E /* DriverRideCreationView.swift */; };
+		65E8971A2F77F900002DE35E /* DriverScheduledRideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E897152F77F900002DE35E /* DriverScheduledRideView.swift */; };
+		65E8971B2F77F900002DE35E /* DriverHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E897162F77F900002DE35E /* DriverHomeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +47,11 @@
 		65E896D42F77E89E002DE35E /* UIApplication+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+TopViewController.swift"; sourceTree = "<group>"; };
 		65E896D62F77E89E002DE35E /* EmailPasswordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailPasswordSheet.swift; sourceTree = "<group>"; };
 		65E896D82F77E89E002DE35E /* GoogleSignInURLScheme.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = GoogleSignInURLScheme.plist; sourceTree = "<group>"; };
+		65E897122F77F900002DE35E /* DriverRideModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverRideModels.swift; sourceTree = "<group>"; };
+		65E897132F77F900002DE35E /* DriverRideStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverRideStore.swift; sourceTree = "<group>"; };
+		65E897142F77F900002DE35E /* DriverRideCreationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverRideCreationView.swift; sourceTree = "<group>"; };
+		65E897152F77F900002DE35E /* DriverScheduledRideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverScheduledRideView.swift; sourceTree = "<group>"; };
+		65E897162F77F900002DE35E /* DriverHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriverHomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,7 +90,6 @@
 		65E896512F77E89E002DE35E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				65E896D82F77E89E002DE35E /* GoogleSignInURLScheme.plist */,
 				65E896612F77ED70002DE35E /* GoogleService-Info.plist */,
 				65E8964F2F77E89E002DE35E /* Assets.xcassets */,
 			);
@@ -90,6 +99,7 @@
 		65E896582F77E89E002DE35E /* hackathon-app */ = {
 			isa = PBXGroup;
 			children = (
+				65E896D82F77E89E002DE35E /* GoogleSignInURLScheme.plist */,
 				65E896512F77E89E002DE35E /* Resources */,
 				65E896522F77E89E002DE35E /* AppDelegate.swift */,
 				65E896552F77E89E002DE35E /* hackathon_appApp.swift */,
@@ -116,6 +126,7 @@
 				65E896572F77E89E002DE35E /* RootView.swift */,
 				65E896772F77F877002DE35E /* Login */,
 				65E896782F77F87C002DE35E /* Main */,
+				65E8971C2F77F900002DE35E /* Driver */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -135,6 +146,18 @@
 				65E896542F77E89E002DE35E /* MainView.swift */,
 			);
 			path = Main;
+			sourceTree = "<group>";
+		};
+		65E8971C2F77F900002DE35E /* Driver */ = {
+			isa = PBXGroup;
+			children = (
+				65E897122F77F900002DE35E /* DriverRideModels.swift */,
+				65E897132F77F900002DE35E /* DriverRideStore.swift */,
+				65E897142F77F900002DE35E /* DriverRideCreationView.swift */,
+				65E897152F77F900002DE35E /* DriverScheduledRideView.swift */,
+				65E897162F77F900002DE35E /* DriverHomeView.swift */,
+			);
+			path = Driver;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -230,6 +253,11 @@
 				65E896D32F77E89E002DE35E /* SessionMetadataStore.swift in Sources */,
 				65E896D52F77E89E002DE35E /* UIApplication+TopViewController.swift in Sources */,
 				65E896D72F77E89E002DE35E /* EmailPasswordSheet.swift in Sources */,
+				65E897172F77F900002DE35E /* DriverRideModels.swift in Sources */,
+				65E897182F77F900002DE35E /* DriverRideStore.swift in Sources */,
+				65E897192F77F900002DE35E /* DriverRideCreationView.swift in Sources */,
+				65E8971A2F77F900002DE35E /* DriverScheduledRideView.swift in Sources */,
+				65E8971B2F77F900002DE35E /* DriverHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -25,3 +25,7 @@ google-credentials.json
 localization-credentials.json
 
 .venv
+
+# Xcode: do not keep Derived Data inside the repo (default: ~/Library/Developer/Xcode/DerivedData)
+**/.derivedData/
+**/.derivedDataBuild*/

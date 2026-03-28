@@ -9,10 +9,28 @@ import SwiftUI
 
 struct MainView: View {
     @Environment(AppSession.self) private var session
+    @Environment(DriverRideStore.self) private var driverRideStore
 
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    NavigationLink {
+                        DriverHomeView(store: driverRideStore)
+                    } label: {
+                        Label("Schedule a ride", systemImage: "calendar.badge.plus")
+                    }
+                    NavigationLink {
+                        CarpoolHomeView()
+                    } label: {
+                        Label("Carpool a ride", systemImage: "person.3.fill")
+                    }
+                } header: {
+                    Text("Choose an option")
+                } footer: {
+                    Text("Schedule when you’re driving and have empty seats. Carpool when you need a ride with someone else.")
+                }
+
                 Section("Signed in") {
                     if let email = session.displayEmail {
                         LabeledContent("Email", value: email)
@@ -34,14 +52,6 @@ struct MainView: View {
                     .disabled(session.isAuthBusy)
                 }
 
-                Section {
-                    Image(systemName: "globe")
-                        .imageScale(.large)
-                        .foregroundStyle(.tint)
-                        .frame(maxWidth: .infinity)
-                    Text("Hello, world!")
-                        .frame(maxWidth: .infinity)
-                }
             }
             .navigationTitle("Zagreb Flow")
             .toolbar {
@@ -63,7 +73,21 @@ struct MainView: View {
     }
 }
 
+/// Placeholder for the passenger / “need a ride” flow (matching, apply, status).
+struct CarpoolHomeView: View {
+    var body: some View {
+        ContentUnavailableView {
+            Label("Carpool a ride", systemImage: "person.3.fill")
+        } description: {
+            Text("Enter where you’re going and find drivers with a matching commute. This flow will connect here next.")
+        }
+        .navigationTitle("Carpool")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
 #Preview {
     MainView()
         .environment(AppSession())
+        .environment(DriverRideStore())
 }

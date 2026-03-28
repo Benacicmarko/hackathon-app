@@ -45,7 +45,7 @@ Build a **carpooling application** optimized for **recurring, predictable commut
 
 1. User selects **driving**.
 2. Creates **morning intent to drive**: date, driver’s addresses/route inputs per technical spec, and **number of passenger seats** offered.
-3. Intent is **open for applications** until passenger seats are **filled**.
+3. The driver **fills a creation form** first (draft locally). **Publishing** the ride (primary confirm in the client) is when the intent becomes **open for applications** until passenger seats are **filled**. The reference iOS model uses `isPublished` on `ScheduledRide` for visibility to passengers once a backend exists; until then this is client-only state.
 
 ### 4.2 Rider (needs a ride) — match, then apply
 

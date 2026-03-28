@@ -14,11 +14,13 @@ struct hackathon_appApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     @State private var appSession = AppSession()
+    @State private var driverRideStore = DriverRideStore()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(appSession)
+                .environment(driverRideStore)
                 .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
         }
     }
