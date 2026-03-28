@@ -17,7 +17,7 @@ This document describes **how** we will implement the product defined in [carpoo
 ## 2. Technical goals
 
 - **Driver intent first:** persist **DriverIntent** with **passenger seat capacity**; expose as **open for applications** until full.
-- **Rider discovery:** `GET` (or `POST`) **match** endpoint: inputs **departure address**, **arrival address**, **wanted_arrival_at**, **date** → returns **open** `DriverIntent`s **ranked** by a **best-match** heuristic (corridor/ETA slack via Google APIs—MVP: simple scoring).
+- **Rider discovery:** `POST` **match** endpoint: inputs **departure address**, **arrival address**, **wanted_arrival_at**, **date** → returns **open** `DriverIntent`s for the same local day, pre-filtered to a **±30 minute** window around the searched time, then ranked by a **best-match** heuristic (corridor/ETA slack via Google APIs—MVP: simple scoring).
 - **Rider applications:** users **POST applications** against a chosen **driver_intent_id**; **no driver accept/reject** in MVP—reject only on **system rules**: capacity, duplicates, **application cutoff** (**before start of departure calendar day** in the requesting user’s **device locale** / system time zone), etc.
 - **Trigger:** When **number of accepted applications == passenger seat count**, invoke **MatchingAndRoutingService** **once** (or idempotently) to compute **ordered stops and times** such that each rider arrives **before** `wanted_arrival_at` (and driver reaches their declared destination if modeled).
 - **Lifecycle** roughly: `collecting_passengers` → `full` → `routing` / `confirmed` (with stops) → `in_progress` → `completed` / `cancelled`. **No** `rejected_by_driver` in MVP.
@@ -98,7 +98,7 @@ On each successful **application** `POST`, if `applications_count == capacity`, 
 | Entity | Purpose |
 |--------|---------|
 | **User** | Account, profile; can create **DriverIntent** and **RiderApplication** on different days. |
-| **DriverIntent** | **Date**, driver **origin/destination** (exact addresses), **passenger_seats** (integer), **status** (e.g. open, full, confirmed, cancelled). |
+| **DriverIntent** | **Departure datetime** (ISO timestamp), driver **origin/destination** (exact addresses), **passenger_seats** (integer), **status** (e.g. open, full, confirmed, cancelled). |
 | **RiderApplication** | **driver_intent_id**, **user_id**, **departure_address**, **arrival_address**, **wanted_arrival_at**; **created_at** for FCFS; unique (intent, user) for MVP. |
 | **RideInstance** | Optional denormalized view: links **one driver intent** + **N applications** once **full**; holds **routing_status** and references **Stop** rows. |
 | **Stop** | Ordered pickup/dropoff, user ref, lat/lng or place id, **scheduled time**. |
@@ -160,14 +160,17 @@ REST (or GraphQL) **TBD**; minimum resources:
 
 ## 10. Time zone & API contract
 
-Every **mutating** rider request (`POST /applications`, `POST /driver-intents/matches`, cancel) should include:
+Every request that needs calendar/time-rule enforcement (`POST /driver-intents`, `POST /driver-intents/matches`, `POST /applications`, cancel) should include:
 
-- `departure_date` — ISO **date** string `YYYY-MM-DD` for the commute (calendar day in the user’s intent).
+- `departureDate` — for `POST /driver-intents`, send full ISO datetime (e.g. `2026-03-28T17:30:00.000+01:00`) and store as UTC instant.
+- `departureDate` — for `POST /driver-intents/matches`, send ISO date `YYYY-MM-DD` to pick the target local calendar day.
+- `wantedArrivalAt` — full ISO datetime used to time-window match results.
 - `client_time_zone` — IANA id, e.g. `Europe/Zagreb`, from `TimeZone.current.identifier` on iOS.
 
 The server:
 
-- Parses “start of `departure_date`” in that zone and rejects new **applications** if `now.utc` ≥ that instant (equivalently: no new riders once the departure **local** day has begun).
+- Parses “start of requested `departureDate` day” in that zone and rejects new **applications** if `now.utc` ≥ that instant (equivalently: no new riders once the departure **local** day has begun).
+- For **match search**, scopes candidates to the requested local day and filters to intents where `abs(intent.departureDate - wantedArrivalAt) <= 30 minutes`.
 - Uses the same rule for **server-driven** jobs if the client omits refresh (prefer server UTC + stored `client_time_zone` on the session or last request).
 
 **Day-before cancel:** Implement as: cancel allowed only if **server “today”** in `client_time_zone` is **strictly before** `departure_date` (or end of previous local day—match product prose exactly in code).
@@ -187,7 +190,7 @@ users
 driver_intents
   id (uuid, pk)
   driver_user_id (fk users)
-  departure_date (date)           -- calendar day of trip
+  departure_date (timestamptz)    -- exact published departure instant
   origin_address (text)
   destination_address (text)
   passenger_seats (int)           -- K passenger slots
@@ -237,7 +240,7 @@ Base URL `/v1`. All JSON. Auth: `Authorization: Bearer <Firebase_ID_token>` — 
 ### Driver intents
 
 - `POST /driver-intents`  
-  Body: `{ departureDate, originAddress, destinationAddress, passengerSeats, clientTimeZone }`  
+  Body: `{ departureDate (ISO8601 datetime), originAddress, destinationAddress, passengerSeats, clientTimeZone }`  
   → `{ id, status, ... }`
 
 - `GET /driver-intents/mine?from=&to=` — list current user’s intents.
@@ -247,9 +250,9 @@ Base URL `/v1`. All JSON. Auth: `Authorization: Bearer <Firebase_ID_token>` — 
 ### Match (ranked discovery)
 
 - `POST /driver-intents/matches`  
-  Body: `{ departureDate, riderDepartureAddress, riderArrivalAddress, wantedArrivalAt (ISO8601), clientTimeZone }`  
+  Body: `{ departureDate (YYYY-MM-DD), riderDepartureAddress, riderArrivalAddress, wantedArrivalAt (ISO8601), clientTimeZone }`  
   → `{ matches: [ { intentId, score, driverDisplayName, seatsRemaining, departureDate, ... } ] }`  
-  Only intents with **status** `collecting_passengers` and **before cutoff** and `seatsRemaining > 0`.
+  Only intents with **status** `collecting_passengers`, **before cutoff**, `seatsRemaining > 0`, same requested local day, and within **±30 minutes** of `wantedArrivalAt`.
 
 ### Applications
 
@@ -335,7 +338,7 @@ Where:
 - **Time slack:** difference between feasible latest arrival and `wanted_arrival_at` if evaluating one rider vs driver route (approximate).
 - **Detour proxy:** extra travel time vs driver driving alone (`computeRouteMatrix` or Distance Matrix)—lower is better.
 
-**Filter** before scoring: drop intents where **seat count** is 0, **cutoff** passed, or **date** ≠ requested `departureDate`.
+**Filter** before scoring: drop intents where **seat count** is 0, **cutoff** passed, local day ≠ requested `departureDate`, or departure time is outside the **±30 minute** window around `wantedArrivalAt`.
 
 ---
 

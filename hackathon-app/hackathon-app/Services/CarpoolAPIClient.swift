@@ -11,7 +11,7 @@ import Foundation
 // MARK: - Shared date helpers
 
 enum APIDateFormatter {
-    /// "YYYY-MM-DD" calendar date (departure_date field).
+    /// "YYYY-MM-DD" calendar date (used by rider date search).
     static func dateString(from date: Date) -> String {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
@@ -26,8 +26,16 @@ enum APIDateFormatter {
         return f.string(from: date)
     }
 
-    /// Parse "YYYY-MM-DD" to midnight in the current time zone.
+    /// Parse either "YYYY-MM-DD" or full ISO-8601 instant.
     static func date(fromDateString string: String) -> Date? {
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = iso.date(from: string) { return d }
+
+        let isoNoFractional = ISO8601DateFormatter()
+        isoNoFractional.formatOptions = [.withInternetDateTime]
+        if let d = isoNoFractional.date(from: string) { return d }
+
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
         f.timeZone = TimeZone.current
@@ -234,6 +242,7 @@ final class CarpoolAPIClient: Sendable {
     func createIntent(token: String?, body: CreateIntentRequest) async throws -> CreateIntentResponse {
         var req = request("/driver-intents", method: "POST", token: token)
         req.httpBody = try encode(body)
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         return try await decode(req)
     }
 
@@ -258,6 +267,7 @@ final class CarpoolAPIClient: Sendable {
     func searchMatches(token: String?, body: MatchesRequest) async throws -> [MatchResult] {
         var req = request("/driver-intents/matches", method: "POST", token: token)
         req.httpBody = try encode(body)
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let res: MatchesResponse = try await decode(req)
         return res.matches
     }
@@ -267,12 +277,14 @@ final class CarpoolAPIClient: Sendable {
     func apply(token: String?, intentId: String, body: ApplyRequest) async throws -> ApplicationResponse {
         var req = request("/driver-intents/\(intentId)/applications", method: "POST", token: token)
         req.httpBody = try encode(body)
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         return try await decode(req)
     }
 
     func deleteApplication(token: String?, applicationId: String) async throws {
         var req = request("/applications/\(applicationId)", method: "DELETE", token: token)
         req.httpBody = try encode(DeleteApplicationBody(clientTimeZone: TimeZone.current.identifier))
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         try await send(req)
     }
 
@@ -282,7 +294,6 @@ final class CarpoolAPIClient: Sendable {
         let url = URL(string: baseURL.absoluteString + path)!
         var req = URLRequest(url: url)
         req.httpMethod = method
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue("Bearer \(token ?? Self.devToken)", forHTTPHeaderField: "Authorization")
         return req
     }

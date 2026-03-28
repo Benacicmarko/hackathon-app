@@ -6,8 +6,9 @@ import {
   isApplicationCutoffPassed,
   canCancelApplication,
   parseIsoDateOnly,
+  parseDepartureDateInput,
+  localDayUtcRange,
 } from "../lib/timezone.js";
-import { rankIntentsForRider } from "../services/matchService.js";
 import { buildAndPersistRoute, STATUS } from "../services/routingService.js";
 
 const createIntentSchema = z.object({
@@ -62,7 +63,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
     const userId = request.user!.id;
     let departureDate: Date;
     try {
-      departureDate = parseIsoDateOnly(b.departureDate);
+      departureDate = parseDepartureDateInput(b.departureDate);
     } catch {
       return reply.code(400).send({ error: "invalid_departure_date" });
     }
@@ -81,7 +82,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
     return reply.code(201).send({
       id: intent.id,
       status: intent.status,
-      departureDate: b.departureDate,
+      departureDate: intent.departureDate.toISOString(),
       passengerSeats: intent.passengerSeats,
     });
   });
@@ -164,14 +165,21 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
       return reply.code(400).send({ error: "invalid_departure_date" });
     }
 
-    if (isApplicationCutoffPassed(new Date(), departureDate, b.clientTimeZone)) {
-      return reply.code(409).send({ error: "application_cutoff_passed" });
+    let wantedArrivalAt: Date;
+    try {
+      wantedArrivalAt = parseInstant(b.wantedArrivalAt);
+    } catch {
+      return reply.code(400).send({ error: "invalid_wanted_arrival" });
     }
+    const { startUtc, endUtc } = localDayUtcRange(departureDate, b.clientTimeZone);
 
     const userId = request.user!.id;
     const open = await prisma.driverIntent.findMany({
       where: {
-        departureDate,
+        departureDate: {
+          gte: startUtc,
+          lt: endUtc,
+        },
         status: STATUS.collecting,
         driverUserId: { not: userId },
       },
@@ -181,14 +189,29 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
       },
     });
 
+    const thirtyMinutesMs = 30 * 60 * 1000;
     const candidates = open
       .map((i) => ({
         ...i,
         applicationCount: i.applications.length,
       }))
-      .filter((i) => i.applicationCount < i.passengerSeats);
+      .filter((i) => i.applicationCount < i.passengerSeats)
+      .filter(
+        (i) => Math.abs(i.departureDate.getTime() - wantedArrivalAt.getTime()) <= thirtyMinutesMs
+      );
 
-    const ranked = await rankIntentsForRider(candidates, b.riderDepartureAddress);
+    const ranked = candidates
+      .map((intent) => {
+        const timeDeltaMs = Math.abs(intent.departureDate.getTime() - wantedArrivalAt.getTime());
+        const score = Math.max(0, 1 - timeDeltaMs / thirtyMinutesMs);
+        return { intent, score, timeDeltaMs };
+      })
+      .sort((a, b) => {
+        if (a.timeDeltaMs !== b.timeDeltaMs) return a.timeDeltaMs - b.timeDeltaMs;
+        const seatsA = a.intent.passengerSeats - a.intent.applicationCount;
+        const seatsB = b.intent.passengerSeats - b.intent.applicationCount;
+        return seatsB - seatsA;
+      });
 
     return {
       matches: ranked.map((r) => ({
@@ -196,7 +219,7 @@ export async function registerV1Routes(app: FastifyInstance): Promise<void> {
         score: Math.round(r.score * 1000) / 1000,
         driverDisplayName: r.intent.driver.displayName,
         seatsRemaining: r.intent.passengerSeats - r.intent.applicationCount,
-        departureDate: b.departureDate,
+        departureDate: r.intent.departureDate.toISOString(),
         originAddress: r.intent.originAddress,
         destinationAddress: r.intent.destinationAddress,
       })),

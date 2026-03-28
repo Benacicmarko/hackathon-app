@@ -76,7 +76,7 @@ final class DriverRideStore {
         defer { isLoading = false }
 
         let body = CreateIntentRequest(
-            departureDate: APIDateFormatter.dateString(from: draft.departureTime),
+            departureDate: APIDateFormatter.isoString(from: draft.departureTime),
             originAddress: draft.fromLocation.trimmingCharacters(in: .whitespacesAndNewlines),
             destinationAddress: draft.toLocation.trimmingCharacters(in: .whitespacesAndNewlines),
             passengerSeats: max(1, draft.availableSeats),
@@ -106,7 +106,7 @@ final class DriverRideStore {
     // MARK: - Backend: cancel intent
 
     func cancelRide(token: String?) async {
-        guard var ride = activeRide else { return }
+        guard let ride = activeRide else { return }
         isLoading = true
         defer { isLoading = false }
 
@@ -119,8 +119,9 @@ final class DriverRideStore {
             }
         }
 
-        ride.phase = .cancelled
-        activeRide = ride
+        // Clear the active ride and reset to empty state
+        // This allows the driver to immediately create a new ride
+        activeRide = nil
         isComposingRide = false
     }
 
