@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carpool City — Zagreb Traffic Solution</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/black.min.css" id="theme">
+<style>
+  :root {
+    --r-heading-color: #38bdf8;
+    --r-link-color: #38bdf8;
+    --r-selection-background-color: #38bdf8;
+    --r-background-color: #0f172a;
+    --r-main-font-size: 36px;
+  }
+  .reveal { font-family: "Inter", "Segoe UI", system-ui, sans-serif; }
+  .reveal h1, .reveal h2, .reveal h3 { font-weight: 700; text-transform: none; letter-spacing: -0.02em; }
+  .reveal h1 { font-size: 2.4em; }
+  .reveal h2 { font-size: 1.6em; }
+  .stat { font-size: 2.8em; font-weight: 800; color: #38bdf8; line-height: 1.1; }
+  .stat-label { font-size: 0.55em; color: #94a3b8; font-weight: 400; display: block; margin-top: 0.3em; }
+  .accent { color: #38bdf8; }
+  .muted { color: #94a3b8; font-size: 0.7em; }
+  .step-num { display: inline-block; width: 1.6em; height: 1.6em; line-height: 1.6em; border-radius: 50%; background: #38bdf8; color: #0f172a; font-weight: 800; text-align: center; margin-right: 0.4em; font-size: 0.9em; }
+  .steps li { list-style: none; margin-bottom: 0.6em; text-align: left; }
+  .steps { padding-left: 0; }
+  .tech-grid { display: flex; gap: 1.2em; justify-content: center; flex-wrap: wrap; margin-top: 1em; }
+  .tech-card { background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 0.6em 1.1em; font-size: 0.65em; text-align: center; min-width: 140px; }
+  .tech-card strong { display: block; color: #38bdf8; font-size: 1.15em; margin-bottom: 0.2em; }
+  .reveal section img { max-height: 55vh; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .subtitle { color: #94a3b8; font-size: 0.6em; margin-top: 0.3em; }
+  .next-list { text-align: left; font-size: 0.75em; }
+  .next-list li { margin-bottom: 0.35em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+  <!-- 1. TITLE -->
+  <section>
+    <h1>Carpool City</h1>
+    <p class="subtitle">Smarter commutes for Zagreb</p>
+    <aside class="notes">
+      Introduce yourselves and the team. Set context: hackathon project, city-scale daily carpool app for Zagreb.
+    </aside>
+  </section>
+
+  <!-- 2. THE PROBLEM -->
+  <section>
+    <h2>Zagreb Has a Traffic Problem</h2>
+    <div style="display:flex; gap:1.5em; justify-content:center; margin-top:1em;">
+      <div class="fragment">
+        <div class="stat">74%</div>
+        <span class="stat-label">of commuters drive alone</span>
+      </div>
+      <div class="fragment">
+        <div class="stat">45 min</div>
+        <span class="stat-label">avg morning commute</span>
+      </div>
+      <div class="fragment">
+        <div class="stat">+31%</div>
+        <span class="stat-label">peak congestion index</span>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:1.5em;">Same corridors, same times, thousands of empty seats.</p>
+    <aside class="notes">
+      Every morning, most cars carry one person on the same routes at the same time. That's wasted capacity sitting in traffic. These numbers are illustrative — replace with official Zagreb / TomTom data if available.
+    </aside>
+  </section>
+
+  <!-- 3. WHY IT MATTERS -->
+  <section>
+    <h2>Why It Matters</h2>
+    <ul style="text-align:left; font-size:0.8em;">
+      <li class="fragment"><strong class="accent">Commuters</strong> — lost time, fuel costs, stress every single morning</li>
+      <li class="fragment"><strong class="accent">Environment</strong> — CO₂ from thousands of half-empty cars on repeat</li>
+      <li class="fragment"><strong class="accent">The city</strong> — road wear, parking pressure, slower public transit</li>
+    </ul>
+    <p class="fragment muted" style="margin-top:1.2em;">People already want to share rides — they just don't have a <strong style="color:#e2e8f0;">simple, reliable</strong> way to do it daily.</p>
+    <aside class="notes">
+      This isn't a one-off road trip problem. It's the same wasteful pattern repeated 250+ workdays a year. Existing tools (WhatsApp groups, BlaBlaCar) aren't built for daily city commutes.
+    </aside>
+  </section>
+
+  <!-- 4. OUR SOLUTION -->
+  <section>
+    <h2>Our Solution</h2>
+    <p style="font-size:1.1em; margin-top:1em;">
+      A <span class="accent">daily carpool app</span> that matches<br>
+      drivers and riders on the <strong>same city corridors</strong>,<br>
+      every morning — automatically.
+    </p>
+    <p class="fragment" style="margin-top:1.2em; font-size:0.75em;">
+      No manual coordination. No driver approval step.<br>
+      Seats fill up, a route is computed, everyone gets their schedule.
+    </p>
+    <aside class="notes">
+      One sentence pitch: "Drivers post their commute, riders find the best match and apply, and when the car is full the app plans the route so everyone arrives on time." Emphasize daily/recurring — this isn't BlaBlaCar for long trips.
+    </aside>
+  </section>
+
+  <!-- 5. HOW IT WORKS -->
+  <section>
+    <h2>How It Works</h2>
+    <ul class="steps">
+      <li class="fragment"><span class="step-num">1</span> <strong>Driver</strong> posts morning intent — date, route, seat count</li>
+      <li class="fragment"><span class="step-num">2</span> <strong>Riders</strong> search by destination and arrival time — best matches ranked</li>
+      <li class="fragment"><span class="step-num">3</span> Riders <strong>apply</strong> — seats fill automatically (FCFS)</li>
+      <li class="fragment"><span class="step-num">4</span> Car full → <strong>route and schedule computed</strong> via Google Routes API</li>
+      <li class="fragment"><span class="step-num">5</span> Everyone sees <strong>pickup times, stops, and map</strong></li>
+    </ul>
+    <aside class="notes">
+      Walk through each step. Emphasize: no negotiation, no back-and-forth. The system handles matching and routing. Cancel policy: day before, seat reopens, re-route if needed.
+    </aside>
+  </section>
+
+  <!-- 6. TECH STACK -->
+  <section>
+    <h2>Built With</h2>
+    <div class="tech-grid">
+      <div class="tech-card fragment">
+        <strong>iOS</strong>
+        SwiftUI + Firebase Auth
+      </div>
+      <div class="tech-card fragment">
+        <strong>Backend</strong>
+        Node.js + Fastify + Prisma
+      </div>
+      <div class="tech-card fragment">
+        <strong>Routing</strong>
+        Google Geocoding + Routes API
+      </div>
+      <div class="tech-card fragment">
+        <strong>Database</strong>
+        SQLite (dev) / PostgreSQL (prod)
+      </div>
+    </div>
+    <p class="muted fragment" style="margin-top:1.2em;">Full REST API, real-time route computation, zero-config local dev</p>
+    <aside class="notes">
+      Keep this brief. The audience cares about the product, not the infra. Mention: backend tested end-to-end, iOS being wired up, Google APIs for real geocoding and routing.
+    </aside>
+  </section>
+
+  <!-- 7. DEMO / SCREENSHOT -->
+  <section>
+    <h2>Demo</h2>
+    <p style="font-size:0.8em; color:#94a3b8;">
+      <!-- Replace the placeholder below with a screenshot or live demo -->
+      <em>Live demo or app screenshot goes here</em>
+    </p>
+    <pre style="font-size:0.4em; text-align:left; background:rgba(0,0,0,0.4); padding:1em; border-radius:8px;"><code>$ curl http://localhost:3000/v1/driver-intents/matches \
+  -H "Authorization: Bearer riderA" \
+  -d '{"departureDate":"2026-04-15",
+       "riderDepartureAddress":"Ilica 10, Zagreb",
+       "riderArrivalAddress":"Vukovarska 1, Zagreb",
+       "wantedArrivalAt":"2026-04-15T09:00:00Z",
+       "clientTimeZone":"Europe/Zagreb"}'
+
+→ { "matches": [{ "intentId": "...", "score": 2,
+     "driverDisplayName": "Marko", "seatsRemaining": 1 }] }</code></pre>
+    <aside class="notes">
+      If the app UI is ready, show it here instead of the curl example. Walk through: rider searches, sees ranked matches, applies, car fills, stops appear. The curl is a fallback to prove the backend works end-to-end.
+    </aside>
+  </section>
+
+  <!-- 8. WHAT'S NEXT -->
+  <section>
+    <h2>What's Next</h2>
+    <ul class="next-list">
+      <li class="fragment">Evening return commute</li>
+      <li class="fragment">In-app cost sharing</li>
+      <li class="fragment">Employer / corporate programs</li>
+      <li class="fragment">Android and web clients</li>
+      <li class="fragment">Smart route optimization (waypoint reordering)</li>
+    </ul>
+    <p class="fragment" style="margin-top:1.5em; font-size:1.1em;">
+      <strong class="accent">Less cars. Less traffic. Same city.</strong>
+    </p>
+    <aside class="notes">
+      End strong. The MVP proves the model works for morning commutes in Zagreb. The roadmap is clear and each item is a natural extension. Thank the audience, open for questions.
+    </aside>
+  </section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  transition: 'slide',
+  backgroundTransition: 'fade',
+  center: true,
+  controls: true,
+  progress: true,
+  slideNumber: 'c/t',
+});
+</script>
+</body>
+</html>
